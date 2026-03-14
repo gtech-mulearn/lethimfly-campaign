@@ -5,10 +5,10 @@ import { CampusScore } from '@/types';
 async function getCampusData(id: string): Promise<CampusScore | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/v1/campuses`, { next: { revalidate: 30 } });
+    const res = await fetch(`${baseUrl}/api/v1/campuses/${id}`, { next: { revalidate: 30 } });
     if (!res.ok) return null;
-    const campuses: CampusScore[] = await res.json();
-    return (campuses || []).find((c) => c.campus_id === id) || null;
+    const campus: CampusScore = await res.json();
+    return campus || null;
   } catch {
     return null;
   }
@@ -128,6 +128,10 @@ export default async function CampusDetailPage({
 
         {/* Stats Grid */}
         <div className="metrics-strip" style={{ paddingTop: 'var(--space-6)', paddingBottom: 0 }}>
+          <div className="metric-card">
+            <div className="metric-value">{campus.total_commitments ?? 0}</div>
+            <div className="metric-label">Total Commitments</div>
+          </div>
           <div className="metric-card">
             <div className="metric-value green">{campus.verified_contributors || 0}</div>
             <div className="metric-label">Verified</div>

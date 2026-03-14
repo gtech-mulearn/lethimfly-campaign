@@ -24,6 +24,8 @@ export interface CampusStats {
   campus_type: CampusType;
   district: string;
   campus_strength: number | null;
+  total_commitments?: number;
+  total_amount_committed?: number;
   verified_contributors: number;
   pending_verification: number;
   verified_amount_total: number;

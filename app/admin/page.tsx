@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, FormEvent, ChangeEvent } from 'react';
 import Papa from 'papaparse';
+import { createClient } from '@/lib/supabase/client';
 import { CampusScore } from '@/types';
 
 interface CommitmentAdminView {
@@ -22,7 +23,9 @@ interface CommitmentAdminView {
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
-  const [adminKey, setAdminKey] = useState('');
+  const [authCheckDone, setAuthCheckDone] = useState(false);
+  const [sessionUser, setSessionUser] = useState<{ email: string } | null>(null);
+  const [isAdminBySession, setIsAdminBySession] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('queue');
 
   // Queue state
@@ -41,7 +44,7 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
 
   // Stats
-  const [stats, setStats] = useState({ pending: 0, verified: 0, total: 0 });
+  const [stats, setStats] = useState({ pending: 0, verified: 0, total: 0, totalCommitted: 0 });
 
   // Campuses state
   const [adminCampuses, setAdminCampuses] = useState<CampusScore[]>([]);
@@ -56,29 +59,27 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    const key = adminKey.trim();
-    if (!key) return;
-
-    try {
-      // Verify the key against the server before granting access
-      const res = await fetch('/api/v1/admin/commitments?status=PENDING_VERIFICATION&page=1&limit=1', {
-        headers: { Authorization: `Bearer ${key}` },
-      });
-      if (res.status === 401) {
-        alert('Invalid admin key. Please try again.');
-        return;
-      }
-      // Key is valid
-      localStorage.setItem('admin_key', key);
-      setAuthed(true);
-    } catch {
-      alert('Network error. Please check your connection and try again.');
-    }
+  const getAuthKey = (): string => {
+    if (typeof window === 'undefined') return '';
+    return sessionStorage.getItem('admin_token') || '';
   };
 
-  const getAuthKey = () => (typeof window !== 'undefined' ? localStorage.getItem('admin_key') || '' : '');
+  const handleGoogleLogin = () => {
+    const supabase = createClient();
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/admin` },
+    });
+  };
+
+  const clearAuthOn401 = useCallback((res: Response) => {
+    if (res.status === 401) {
+      sessionStorage.removeItem('admin_token');
+      setAuthed(false);
+      setSessionUser(null);
+      setIsAdminBySession(null);
+    }
+  }, []);
 
   const fetchQueue = useCallback(async () => {
     setQueueLoading(true);
@@ -87,6 +88,7 @@ export default function AdminDashboard() {
         `/api/v1/admin/commitments?status=${statusFilter}&page=${page}&limit=25`,
         { headers: { Authorization: `Bearer ${getAuthKey()}` } }
       );
+      clearAuthOn401(res);
       const data = await res.json();
       setCommitments(data.data || []);
       setTotalPages(data.totalPages || 1);
@@ -96,7 +98,7 @@ export default function AdminDashboard() {
     } finally {
       setQueueLoading(false);
     }
-  }, [statusFilter, page]);
+  }, [statusFilter, page, clearAuthOn401]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -106,6 +108,7 @@ export default function AdminDashboard() {
         pending: data.pending_verification_total || 0,
         verified: data.verified_contributors_total || 0,
         total: data.verified_amount_total || 0,
+        totalCommitted: data.total_commitments_total || 0,
       });
     } catch {}
   }, []);
@@ -138,8 +141,33 @@ export default function AdminDashboard() {
   }, [authed, fetchQueue, fetchStats, activeTab, fetchCampuses]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('admin_key');
-    if (saved) setAuthed(true);
+    let cancelled = false;
+    (async () => {
+      if (typeof window !== 'undefined') localStorage.removeItem('admin_key');
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (session?.user?.email) {
+        setSessionUser({ email: session.user.email });
+        const res = await fetch('/api/v1/admin/me', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (cancelled) return;
+        const data = await res.json();
+        if (data.isAdmin) {
+          if (typeof window !== 'undefined') sessionStorage.setItem('admin_token', session.access_token);
+          setAuthed(true);
+          setIsAdminBySession(true);
+        } else {
+          setIsAdminBySession(false);
+        }
+      } else {
+        setSessionUser(null);
+        setIsAdminBySession(null);
+      }
+      setAuthCheckDone(true);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const handleVerify = async (id: string) => {
@@ -150,6 +178,7 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthKey()}` },
         body: JSON.stringify({ note: 'Verified via admin dashboard' }),
       });
+      clearAuthOn401(res);
       if (res.ok) {
         showToast('Commitment verified! ✅');
         fetchQueue();
@@ -174,6 +203,7 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthKey()}` },
         body: JSON.stringify({ reason: rejectReason }),
       });
+      clearAuthOn401(res);
       if (res.ok) {
         showToast('Commitment rejected');
         setRejectId(null);
@@ -280,34 +310,75 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleExport = () => {
-    window.open('/api/v1/admin/exports', '_blank');
+  const handleExport = async () => {
+    const token = getAuthKey();
+    if (!token) return;
+    try {
+      const res = await fetch('/api/v1/admin/exports', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          sessionStorage.removeItem('admin_token');
+          setAuthed(false);
+        }
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `campus-karma-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export error:', err);
+    }
   };
 
   // Login Screen
   if (!authed) {
+    if (!authCheckDone) {
+      return (
+        <div className="container" style={{ paddingTop: 'var(--space-16)', textAlign: 'center' }}>
+          <div className="skeleton skeleton-title" style={{ margin: '0 auto' }} />
+        </div>
+      );
+    }
     return (
       <div
         className="container"
-        style={{ paddingTop: 'var(--space-16)', maxWidth: '400px', textAlign: 'center' }}
+        style={{ paddingTop: 'var(--space-16)', maxWidth: '440px', textAlign: 'center' }}
       >
         <h1 className="section-title">Admin Login</h1>
-        <p className="section-subtitle">Enter admin key to continue</p>
-        <form onSubmit={handleLogin} className="card">
-          <div className="form-group">
-            <input
-              type="password"
-              className="form-input"
-              placeholder="Enter admin key"
-              value={adminKey}
-              onChange={(e) => setAdminKey(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-            Log In
+        <p className="section-subtitle">
+          Sign in with Google to access the admin dashboard
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="btn btn-primary"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
           </button>
-        </form>
+
+          {sessionUser && isAdminBySession === false && (
+            <div className="card" style={{ textAlign: 'left', padding: 'var(--space-4)' }}>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                Signed in as <strong>{sessionUser.email}</strong>. This account is not an admin. Contact an existing admin to be added to the admin list.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -350,11 +421,13 @@ export default function AdminDashboard() {
             <button
               className="btn btn-secondary btn-sm"
               onClick={() => {
-                localStorage.removeItem('admin_key');
+                sessionStorage.removeItem('admin_token');
                 setAuthed(false);
+                setSessionUser(null);
+                setIsAdminBySession(null);
               }}
             >
-              Logout
+              Log out
             </button>
           </div>
         </div>
@@ -364,8 +437,12 @@ export default function AdminDashboard() {
         {/* Stats Cards */}
         <div className="metrics-strip" style={{ paddingTop: 0, paddingBottom: 'var(--space-6)' }}>
           <div className="metric-card">
+            <div className="metric-value blue">{stats.totalCommitted}</div>
+            <div className="metric-label">Total users committed</div>
+          </div>
+          <div className="metric-card">
             <div className="metric-value pink">{stats.pending}</div>
-            <div className="metric-label">Pending</div>
+            <div className="metric-label">Pending verification</div>
           </div>
           <div className="metric-card">
             <div className="metric-value green">{stats.verified}</div>
@@ -373,11 +450,11 @@ export default function AdminDashboard() {
           </div>
           <div className="metric-card">
             <div className="metric-value gold">₹{stats.total.toLocaleString()}</div>
-            <div className="metric-label">Total Raised</div>
+            <div className="metric-label">Total raised (₹)</div>
           </div>
           <div className="metric-card">
-            <div className="metric-value blue">{total}</div>
-            <div className="metric-label">In Queue</div>
+            <div className="metric-value">{total}</div>
+            <div className="metric-label">In current queue</div>
           </div>
         </div>
 
@@ -413,21 +490,39 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Status filter for All tab */}
-        {activeTab === 'all' && (
-          <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-4)', flexWrap: 'wrap' }}>
-            {['all', 'COMMITTED', 'PENDING_VERIFICATION', 'VERIFIED', 'REJECTED'].map((s) => (
-              <button
-                key={s}
-                className={`btn btn-sm ${statusFilter === s ? 'btn-primary' : 'btn-secondary'}`}
-                onClick={() => {
-                  setStatusFilter(s);
-                  setPage(1);
-                }}
-              >
-                {s === 'all' ? 'All' : s.replace('_', ' ')}
-              </button>
-            ))}
+        {/* Status filter: show for Queue (single status) and All Commitments (full filter) */}
+        {(activeTab === 'queue' || activeTab === 'all') && (
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
+              {activeTab === 'queue' ? '📋 Verification Queue' : '📊 All Commitments'}
+            </h3>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginRight: 'var(--space-2)' }}>Filter by status:</span>
+            <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)', flexWrap: 'wrap' }}>
+              {activeTab === 'queue' ? (
+                <button className="btn btn-sm btn-primary" style={{ cursor: 'default' }}>
+                  Pending verification
+                </button>
+              ) : (
+                [
+                  { value: 'all', label: 'All statuses' },
+                  { value: 'COMMITTED', label: 'Committed' },
+                  { value: 'PENDING_VERIFICATION', label: 'Pending verification' },
+                  { value: 'VERIFIED', label: 'Verified' },
+                  { value: 'REJECTED', label: 'Rejected' },
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    className={`btn btn-sm ${statusFilter === value ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => {
+                      setStatusFilter(value);
+                      setPage(1);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         )}
 
@@ -655,11 +750,14 @@ export default function AdminDashboard() {
               </form>
             </div>
 
-            {/* List Active Campuses */}
+            {/* List Active Campuses (campus info only, no commitment data) */}
             <div className="card">
               <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-4)' }}>
                 🏫 Active Campuses ({adminCampuses.length})
               </h3>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}>
+                Campus list only. For commitment counts and verification, use the Verification Queue or All Commitments tabs.
+              </p>
               {campusLoading ? (
                 <div className="skeleton" style={{ height: '200px' }} />
               ) : (
@@ -667,11 +765,10 @@ export default function AdminDashboard() {
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>
                     <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
                       <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
-                        <th style={{ padding: 'var(--space-2)' }}>Name</th>
+                        <th style={{ padding: 'var(--space-2)' }}>Campus name</th>
                         <th style={{ padding: 'var(--space-2)' }}>District</th>
                         <th style={{ padding: 'var(--space-2)' }}>Type</th>
                         <th style={{ padding: 'var(--space-2)' }}>Tier</th>
-                        <th style={{ padding: 'var(--space-2)', textAlign: 'right' }}>Verified / Pending</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -689,13 +786,6 @@ export default function AdminDashboard() {
                             >
                               {c.tier}
                             </span>
-                          </td>
-                          <td style={{ padding: 'var(--space-2)', textAlign: 'right' }}>
-                            <span style={{ color: 'var(--accent-green)', fontWeight: 600 }}>
-                              {c.verified_contributors}
-                            </span>{' '}
-                            /{' '}
-                            <span style={{ color: 'var(--accent-secondary)' }}>{c.pending_verification}</span>
                           </td>
                         </tr>
                       ))}

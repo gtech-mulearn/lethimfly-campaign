@@ -24,6 +24,7 @@ export async function GET() {
     let verified_amount_total = 0;
     let verified_contributors_total = 0;
     let pending_verification_total = 0;
+    let total_commitments_total = 0;
 
     if (!metricsError && metrics) {
       metrics.forEach((c: { status: string; amount_committed: number }) => {
@@ -33,6 +34,9 @@ export async function GET() {
         } else if (c.status === 'PENDING_VERIFICATION') {
           pending_verification_total++;
         }
+        if (['COMMITTED', 'PENDING_VERIFICATION', 'VERIFIED'].includes(c.status)) {
+          total_commitments_total++;
+        }
       });
     }
 
@@ -41,6 +45,7 @@ export async function GET() {
       verified_amount_total,
       verified_contributors_total,
       pending_verification_total,
+      total_commitments_total,
       end_at: settings.end_at,
       leaderboard_mode: settings.leaderboard_mode,
       account_info: settings.account_info,

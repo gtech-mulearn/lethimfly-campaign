@@ -1,8 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { validateAdminKey } from '@/lib/auth/adminKey';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authError = await validateAdminKey(request);
+    if (authError) return authError;
+
     const supabase = createAdminClient();
 
     const { data, error } = await supabase

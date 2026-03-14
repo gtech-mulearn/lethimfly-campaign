@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    const authError = validateAdminKey(request);
+    const authError = await validateAdminKey(request);
     if (authError) return authError;
 
     const body = await request.json();

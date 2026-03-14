@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import UserDonationStats from '@/components/UserDonationStats';
 
 interface CampusOption {
   campus_id: string;
@@ -181,12 +182,15 @@ export default function CommitModal() {
           Join the #LetHimFly campaign and help Syam reach the sky.
         </p>
 
-        {!userSession && (
+        {!userSession ? (
           <div style={{ marginBottom: 'var(--space-6)', textAlign: 'center' }}>
-            <button 
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
+              Sign in with Google to make your commitment. Your email will be used to identify you.
+            </p>
+            <button
               type="button"
-              onClick={handleGoogleLogin} 
-              className="btn btn-secondary" 
+              onClick={handleGoogleLogin}
+              className="btn btn-primary"
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -195,16 +199,12 @@ export default function CommitModal() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              Auto-fill with Google
+              Sign in with Google to continue
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', margin: 'var(--space-4) 0' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
-              <span style={{ padding: '0 var(--space-3)', color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>or enter manually</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
-            </div>
           </div>
-        )}
-
+        ) : (
+        <>
+          <UserDonationStats show={!!userSession} style={{ marginBottom: 'var(--space-4)' }} />
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Select Your Campus *</label>
@@ -267,14 +267,16 @@ export default function CommitModal() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email (optional)</label>
+            <label className="form-label">Email</label>
             <input
               type="email"
               className="form-input"
-              placeholder="your@email.com"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              readOnly
+              style={{ backgroundColor: 'var(--bg-muted, #f3f4f6)', cursor: 'default' }}
+              aria-readonly="true"
             />
+            <span className="form-hint">From your Google account</span>
           </div>
 
           <div className="form-group">
@@ -349,6 +351,8 @@ export default function CommitModal() {
             {loading ? 'Submitting...' : '🪂 I Commit to #LetHimFly'}
           </button>
         </form>
+        </>
+        )}
       </div>
     </div>
   );

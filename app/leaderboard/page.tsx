@@ -4,12 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { RankedCampus } from '@/types';
 
-type LeaderboardMode = 'headcount' | 'participation';
-
 export default function LeaderboardPage() {
   const [data, setData] = useState<RankedCampus[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState<LeaderboardMode>('headcount');
   const [filterDistrict, setFilterDistrict] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterTier, setFilterTier] = useState('');
@@ -17,7 +14,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/v1/leaderboard?mode=${mode}`)
+    fetch('/api/v1/leaderboard')
       .then((r) => r.json())
       .then((d) => {
         setData(Array.isArray(d) ? d : []);
@@ -28,7 +25,7 @@ export default function LeaderboardPage() {
       })
       .catch(() => setData([]))
       .finally(() => setLoading(false));
-  }, [mode]);
+  }, []);
 
   const filtered = data.filter((c) => {
     if (filterDistrict && c.district !== filterDistrict) return false;
@@ -40,9 +37,9 @@ export default function LeaderboardPage() {
   return (
     <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)' }}>
       <h1 className="section-title">🏆 Campus Leaderboard</h1>
-      <p className="section-subtitle">Rankings based on verified contributions</p>
+      <p className="section-subtitle">Rankings based on total commitments</p>
 
-      {/* Mode Toggle + Filters */}
+      {/* Filters */}
       <div
         style={{
           display: 'flex',
@@ -52,31 +49,6 @@ export default function LeaderboardPage() {
           alignItems: 'center',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            gap: 'var(--space-1)',
-            background: 'var(--bg-glass)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-1)',
-          }}
-        >
-          <button
-            className={`btn btn-sm ${mode === 'headcount' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setMode('headcount')}
-            style={{ border: 'none' }}
-          >
-            Headcount
-          </button>
-          <button
-            className={`btn btn-sm ${mode === 'participation' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setMode('participation')}
-            style={{ border: 'none' }}
-          >
-            Participation %
-          </button>
-        </div>
-
         <select
           className="form-input"
           value={filterDistrict}
@@ -140,9 +112,8 @@ export default function LeaderboardPage() {
               <tr>
                 <th>Rank</th>
                 <th>Campus</th>
-                <th>Verified</th>
-                <th>Amount</th>
-                {mode === 'participation' && <th>%</th>}
+                <th>Commitments</th>
+                <th>Amount committed (₹)</th>
                 <th>Tier</th>
                 <th>Karma</th>
               </tr>
@@ -169,16 +140,11 @@ export default function LeaderboardPage() {
                     </div>
                   </td>
                   <td style={{ fontWeight: 700 }}>
-                    {campus.verified_contributors.toLocaleString()}
+                    {(campus.total_commitments ?? campus.verified_contributors ?? 0).toLocaleString()}
                   </td>
                   <td style={{ color: 'var(--accent-gold)' }}>
-                    ₹{campus.verified_amount_total?.toLocaleString()}
+                    ₹{Number(campus.total_amount_committed ?? campus.verified_amount_total ?? 0).toLocaleString('en-IN')}
                   </td>
-                  {mode === 'participation' && (
-                    <td style={{ fontWeight: 600 }}>
-                      {campus.participation_rate != null ? `${campus.participation_rate}%` : '—'}
-                    </td>
-                  )}
                   <td>
                     <span className={`tier-badge tier-${campus.tier}`}>{campus.tier}</span>
                   </td>

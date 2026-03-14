@@ -7,18 +7,12 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
-    const mode = searchParams.get('mode') || 'headcount';
-
-     
-    let query: any = supabase.from('campus_stats_view').select('*');
-
-    if (mode === 'participation') {
-      query = query
-        .not('participation_rate', 'is', null)
-        .order('participation_rate', { ascending: false });
-    } else {
-      query = query.order('verified_contributors', { ascending: false });
-    }
+    const query = supabase
+      .from('campus_stats_view')
+      .select(
+        'campus_id, campus_name, campus_type, district, total_commitments, total_amount_committed, verified_contributors, verified_amount_total, pending_verification, participation_rate, tier, campus_karma'
+      )
+      .order('total_commitments', { ascending: false });
 
     const { data, error } = await query;
 
@@ -27,19 +21,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
     }
 
-    const ranked = (data || []).map((campus: Record<string, unknown>, index: number) => ({
-      rank: index + 1,
-      campus_id: campus.campus_id,
-      campus_name: campus.campus_name,
-      campus_type: campus.campus_type,
-      district: campus.district,
-      verified_contributors: campus.verified_contributors,
-      verified_amount_total: campus.verified_amount_total,
-      pending_verification: campus.pending_verification,
-      participation_rate: campus.participation_rate,
-      tier: campus.tier,
-      campus_karma: campus.campus_karma,
-    }));
+    const ranked = (data || []).map((campus: Record<string, unknown>, index: number) => {
+      const totalAmountCommitted = Number(campus.total_amount_committed) || 0;
+      return {
+        rank: index + 1,
+        campus_id: campus.campus_id,
+        campus_name: campus.campus_name,
+        campus_type: campus.campus_type,
+        district: campus.district,
+        total_commitments: Number(campus.total_commitments) || 0,
+        total_amount_committed: totalAmountCommitted,
+        verified_contributors: campus.verified_contributors,
+        verified_amount_total: campus.verified_amount_total,
+        pending_verification: campus.pending_verification,
+        participation_rate: campus.participation_rate,
+        tier: campus.tier,
+        campus_karma: campus.campus_karma,
+      };
+    });
 
     return NextResponse.json(ranked);
   } catch (error) {

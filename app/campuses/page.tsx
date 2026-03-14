@@ -165,7 +165,7 @@ function CampusesContent() {
                       fontSize: 'var(--text-base)',
                     }}
                   >
-                    {campus.verified_contributors}
+                    {campus.total_commitments ?? campus.verified_contributors}
                   </span>{' '}
                   <span style={{ color: 'var(--text-muted)' }}>Commitments</span>
                 </div>

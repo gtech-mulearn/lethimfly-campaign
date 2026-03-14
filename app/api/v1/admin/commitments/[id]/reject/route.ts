@@ -1,11 +1,15 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
+import { validateAdminKey } from '@/lib/auth/adminKey';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authError = await validateAdminKey(request);
+    if (authError) return authError;
+
     const supabase = createAdminClient();
     const { id } = await params;
     const body = await request.json();
