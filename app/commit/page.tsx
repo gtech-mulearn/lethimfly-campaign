@@ -38,7 +38,6 @@ function CommitFormInner() {
         .catch(() => {});
     }
 
-    // Check if user is logged in
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -95,7 +94,6 @@ function CommitFormInner() {
         return;
       }
 
-      // Redirect to success page
       router.push(
         `/commit/success?id=${data.commitment_id}&campus=${encodeURIComponent(
           data.campus_name

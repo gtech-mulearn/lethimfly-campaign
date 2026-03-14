@@ -34,7 +34,6 @@ export default function CommitModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Close modal by removing query params
   const closeModal = () => {
     const params = new URLSearchParams(searchParams?.toString() || '');
     params.delete('commit');
@@ -55,7 +54,6 @@ export default function CommitModal() {
             );
             setCampuses(sortedData);
           } else {
-            console.error('Expected array of campuses, got:', data);
             setCampuses([]);
           }
           if (preselectedCampusId) {
@@ -65,19 +63,18 @@ export default function CommitModal() {
         .catch(() => {})
         .finally(() => setLoadingCampuses(false));
     }
-    
-    // Check if user is logged in
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        const name = session.user.user_metadata?.full_name || '';
-        const email = session.user.email || '';
-        setUserSession({ name, email });
-        setForm(f => ({ ...f, full_name: f.full_name || name, email: f.email || email }));
-      }
-    });
-
-  }, [isOpen, preselectedCampusId, campuses.length]);
+    if (isOpen) {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const name = session.user.user_metadata?.full_name || '';
+          const email = session.user.email || '';
+          setUserSession({ name, email });
+          setForm((f) => ({ ...f, full_name: f.full_name || name, email: f.email || email }));
+        }
+      });
+    }
+  }, [isOpen, preselectedCampusId]);
 
   const handleGoogleLogin = async () => {
     const supabase = createClient();

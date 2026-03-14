@@ -21,12 +21,9 @@ export async function GET() {
       .limit(50);
 
     if (error) {
-      console.error('Public global commitments query error:', error);
       return NextResponse.json({ error: 'Failed to fetch global commitments' }, { status: 500 });
     }
 
-    // Format the response
-     
     const formattedData = commitments.map((c: any) => ({
       id: c.id,
       full_name: c.full_name,
@@ -36,8 +33,7 @@ export async function GET() {
     }));
 
     return NextResponse.json(formattedData);
-  } catch (error) {
-    console.error('Public global commitments API error:', error);
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -109,7 +109,6 @@ export async function POST(
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         return NextResponse.json(
           { error: 'Failed to upload screenshot' },
           { status: 500 }
@@ -142,7 +141,6 @@ export async function POST(
       .eq('id', id);
 
     if (updateError) {
-      console.error('Update error:', updateError);
       return NextResponse.json(
         { error: 'Failed to update commitment' },
         { status: 500 }
@@ -153,8 +151,7 @@ export async function POST(
       status: 'PENDING_VERIFICATION',
       message: 'UTR submitted successfully. Your payment will be verified shortly.',
     });
-  } catch (error) {
-    console.error('Submit UTR API error:', error);
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -26,7 +26,6 @@ function CampusesContent() {
       const data = await res.json();
       setCampuses(Array.isArray(data) ? data : []);
 
-      // Extract unique districts
       if (Array.isArray(data)) {
         const uniqueDistricts = [...new Set(data.map((c: CampusScore) => c.district).filter(Boolean))] as string[];
         setDistricts((prev) => {
@@ -34,8 +33,7 @@ function CampusesContent() {
           return merged.sort();
         });
       }
-    } catch (err) {
-      console.error('Failed to fetch campuses:', err);
+    } catch {
       setCampuses([]);
     } finally {
       setLoading(false);

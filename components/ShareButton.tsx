@@ -7,7 +7,7 @@ export default function ShareButton({ title, campusId }: { title?: string; campu
       : window.location.href;
 
     if (navigator.share) {
-      navigator.share({ title, url }).catch(console.error);
+      navigator.share({ title, url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(url);
       alert('Link copied to clipboard!');

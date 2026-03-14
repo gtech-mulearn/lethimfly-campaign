@@ -161,7 +161,6 @@ function TrackContent() {
     </div>
   );
 
-  // Not signed in
   if (!userSession && !loading) {
     return (
       <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '500px', textAlign: 'center' }}>
@@ -191,7 +190,6 @@ function TrackContent() {
     );
   }
 
-  // Signed in – loading
   if (loading) {
     return (
       <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px' }}>
@@ -202,7 +200,6 @@ function TrackContent() {
     );
   }
 
-  // Signed in – content
   const totalAmount = commitments.reduce((sum, c) => sum + (c.amount_committed || 0), 0);
   const verifiedCount = stats?.donation_count ?? commitments.filter((c) => c.status === 'VERIFIED').length;
 

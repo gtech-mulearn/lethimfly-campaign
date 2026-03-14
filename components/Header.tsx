@@ -62,15 +62,23 @@ export default function Header() {
         </Link>
 
         <button
+          type="button"
           className="mobile-menu-btn"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav"
         >
           {mobileOpen ? '✕' : '☰'}
         </button>
       </div>
 
-      <nav className={`mobile-nav ${mobileOpen ? 'open' : ''}`}>
+      <nav
+        id="mobile-nav"
+        className={`mobile-nav ${mobileOpen ? 'open' : ''}`}
+        aria-label="Mobile navigation"
+        hidden={!mobileOpen}
+      >
         <Link href="/campuses" onClick={() => setMobileOpen(false)}>
           Campuses
         </Link>

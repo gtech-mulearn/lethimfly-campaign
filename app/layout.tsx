@@ -1,10 +1,17 @@
 import { Syne, DM_Sans } from 'next/font/google';
+import type { Viewport } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CommitModal from '@/components/CommitModal';
 import ScrollReveal from '@/components/ScrollReveal';
 import { Suspense } from 'react';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 const syne = Syne({
   variable: '--font-syne',
@@ -42,8 +49,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${syne.variable} ${dmSans.variable}`}>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <Header />
-        <main className="page-content">{children}</main>
+        <main id="main-content" className="page-content" tabIndex={-1}>{children}</main>
         <Footer />
         <Suspense fallback={null}>
           <CommitModal />

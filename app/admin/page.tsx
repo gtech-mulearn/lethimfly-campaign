@@ -29,7 +29,6 @@ export default function AdminDashboard() {
   const [isAdminBySession, setIsAdminBySession] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('queue');
 
-  // Queue state
   const [commitments, setCommitments] = useState<CommitmentAdminView[]>([]);
   const [queueLoading, setQueueLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('PENDING_VERIFICATION');
@@ -37,7 +36,6 @@ export default function AdminDashboard() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // Action states
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -47,7 +45,6 @@ export default function AdminDashboard() {
   const [submittingUtr, setSubmittingUtr] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
 
-  // Stats
   const [stats, setStats] = useState({
     pending: 0,
     verified: 0,
@@ -56,7 +53,6 @@ export default function AdminDashboard() {
     totalAmountCommitted: 0,
   });
 
-  // Campuses state
   const [adminCampuses, setAdminCampuses] = useState<CampusScore[]>([]);
   const [campusLoading, setCampusLoading] = useState(false);
   const [newCampus, setNewCampus] = useState({ name: '', type: 'other', district: '' });
@@ -64,7 +60,6 @@ export default function AdminDashboard() {
   const [uploadingCsv, setUploadingCsv] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Payment / campaign settings (admin-editable)
   const [paymentSettings, setPaymentSettings] = useState<{
     upi_id: string;
     qr_code_url: string;
@@ -78,7 +73,6 @@ export default function AdminDashboard() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentSaving, setPaymentSaving] = useState(false);
 
-  // Detailed stats (district, type, campus, status)
   const [detailedStats, setDetailedStats] = useState<{
     summary: { total_commitments: number; total_amount_committed: number; verified_count: number; verified_amount: number; pending_count: number };
     by_district: { district: string; total_commitments: number; total_amount: number; verified_count: number; verified_amount: number }[];
@@ -127,8 +121,7 @@ export default function AdminDashboard() {
       setCommitments(data.data || []);
       setTotalPages(data.totalPages || 1);
       setTotal(data.total || 0);
-    } catch (err) {
-      console.error('Fetch queue error:', err);
+    } catch {
     } finally {
       setQueueLoading(false);
     }
@@ -158,8 +151,7 @@ export default function AdminDashboard() {
       } else {
         setAdminCampuses([]);
       }
-    } catch (err) {
-      console.error('Failed to fetch campuses:', err);
+    } catch {
       setAdminCampuses([]);
     } finally {
       setCampusLoading(false);
@@ -386,8 +378,6 @@ export default function AdminDashboard() {
 
               return { name, district, type };
             })
-            // Extra safety to avoid sending empty rows or headers if name matches 'name'
-             
             .filter((row: any) => row.name && row.name.toLowerCase() !== 'name');
 
           if (rows.length === 0) throw new Error('No valid rows found in CSV');
@@ -480,12 +470,10 @@ export default function AdminDashboard() {
       a.download = `campus-karma-export-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Export error:', err);
+    } catch {
     }
   };
 
-  // Login Screen
   if (!authed) {
     if (!authCheckDone) {
       return (
@@ -1390,10 +1378,6 @@ export default function AdminDashboard() {
             </p>
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
               Preview uses Supabase Storage bucket &quot;screenshots&quot;
-            </p>
-            {/* Implement actual fetching signed URL logic or public bucket URL here based on your rules */}
-            <p style={{marginTop: 'var(--space-4)', fontSize: 'var(--text-xs)', color: 'orange'}}>
-                (View files in supabase storage interface)
             </p>
             <button
               className="btn btn-secondary btn-sm"
