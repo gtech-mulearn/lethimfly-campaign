@@ -15,7 +15,7 @@ export async function GET() {
         full_name, 
         amount_committed, 
         created_at,
-        campuses (campus_name)
+        campuses (name)
       `)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -31,7 +31,7 @@ export async function GET() {
       full_name: c.full_name,
       amount_committed: c.amount_committed,
       created_at: c.created_at,
-      campus_name: c.campuses?.campus_name || 'Unknown Campus'
+      campus_name: c.campuses?.name || 'Unknown Campus'
     }));
 
     return NextResponse.json(formattedData);
