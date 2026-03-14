@@ -1,10 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSignedIn(!!session?.user);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = () => {
+    const supabase = createClient();
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: typeof window !== 'undefined' ? window.location.href : undefined },
+    });
+  };
+
+  const handleLogout = () => {
+    const supabase = createClient();
+    supabase.auth.signOut();
+    setMobileOpen(false);
+  };
 
   return (
     <header className="site-header">
@@ -18,7 +45,16 @@ export default function Header() {
         <nav className="header-nav desktop-nav">
           <Link href="/campuses">Campuses</Link>
           <Link href="/leaderboard">Leaderboard</Link>
-          <Link href="/track">Track</Link>
+          <Link href="/track">My commitments</Link>
+          {signedIn ? (
+            <button type="button" onClick={handleLogout} className="header-auth-btn">
+              Log out
+            </button>
+          ) : (
+            <button type="button" onClick={handleLogin} className="header-auth-btn">
+              Log in
+            </button>
+          )}
         </nav>
 
         <Link href="?commit=true" scroll={false} className="btn btn-primary btn-sm header-cta">
@@ -42,8 +78,17 @@ export default function Header() {
           Leaderboard
         </Link>
         <Link href="/track" onClick={() => setMobileOpen(false)}>
-          Track Status
+          My commitments
         </Link>
+        {signedIn ? (
+          <button type="button" onClick={handleLogout} className="header-auth-btn">
+            Log out
+          </button>
+        ) : (
+          <button type="button" onClick={handleLogin} className="header-auth-btn">
+            Log in
+          </button>
+        )}
         <Link
           href="?commit=true"
           scroll={false}

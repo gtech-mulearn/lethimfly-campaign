@@ -851,6 +851,22 @@ select {
   background: transparent;
 }
 
+.header-nav .header-auth-btn {
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.header-nav .header-auth-btn:hover {
+  color: #111;
+}
+
 .header-cta {
   display: none;
   box-shadow: var(--shadow-sm);
@@ -914,6 +930,23 @@ select {
 }
 
 .mobile-nav a:hover {
+  color: #111;
+  background: var(--bg-glass-hover);
+}
+
+.mobile-nav .header-auth-btn {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  color: #555;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.mobile-nav .header-auth-btn:hover {
   color: #111;
   background: var(--bg-glass-hover);
 }
