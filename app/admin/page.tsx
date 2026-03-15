@@ -4,7 +4,15 @@ import { useState, useEffect, useCallback, useRef, FormEvent, ChangeEvent } from
 import Link from 'next/link';
 import Papa from 'papaparse';
 import { createClient } from '@/lib/supabase/client';
-import { CampusScore } from '@/types';
+import { CampusScore, CampusType } from '@/types';
+
+const CAMPUS_TYPE_LABELS: Record<CampusType, string> = {
+  engineering: 'Engineering',
+  nursing: 'Nursing',
+  polytechnic: 'Polytechnic',
+  arts_science: 'Arts & Science',
+  other: 'Other',
+};
 
 interface CommitmentAdminView {
   id: string;
@@ -71,6 +79,7 @@ export default function AdminDashboard() {
     bank_name: string;
     screenshot_mandatory: boolean;
     one_verified_per_phone: boolean;
+    leaderboard_visible: boolean;
   } | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentSaving, setPaymentSaving] = useState(false);
@@ -201,6 +210,7 @@ export default function AdminDashboard() {
         bank_name: ai.bank_name ?? '',
         screenshot_mandatory: data.screenshot_mandatory === true,
         one_verified_per_phone: data.one_verified_per_phone === true,
+        leaderboard_visible: data.leaderboard_visible !== false,
       });
     } catch {
       setPaymentSettings(null);
@@ -521,6 +531,7 @@ export default function AdminDashboard() {
           },
           screenshot_mandatory: paymentSettings.screenshot_mandatory,
           one_verified_per_phone: paymentSettings.one_verified_per_phone,
+          leaderboard_visible: paymentSettings.leaderboard_visible,
         }),
       });
       clearAuthOn401(res);
@@ -1212,7 +1223,7 @@ export default function AdminDashboard() {
                         <tr key={c.campus_id} className={i % 2 === 1 ? 'admin-table-alt' : ''}>
                           <td style={{ fontWeight: 500 }}>{c.campus_name}</td>
                           <td>{c.district}</td>
-                          <td style={{ textTransform: 'capitalize' }}>{c.campus_type}</td>
+                          <td>{CAMPUS_TYPE_LABELS[c.campus_type as CampusType] ?? c.campus_type}</td>
                           <td>
                             <span className={`tier-badge tier-${c.tier}`} style={{ fontSize: 'var(--text-xs)' }}>
                               {c.tier}
@@ -1397,6 +1408,26 @@ export default function AdminDashboard() {
                     />
                     Limit to one commitment per phone number (uncheck to allow multiple commitments &amp; payments)
                   </label>
+
+                  <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '0' }} />
+
+                  <div>
+                    <p style={{ fontWeight: 600, fontSize: 'var(--text-sm)', marginBottom: 'var(--space-2)' }}>🏆 Campus Leaderboard</p>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--text-sm)' }}>
+                      <input
+                        type="checkbox"
+                        checked={paymentSettings.leaderboard_visible}
+                        onChange={(e) => setPaymentSettings({ ...paymentSettings, leaderboard_visible: e.target.checked })}
+                      />
+                      Show campus leaderboard
+                    </label>
+                    {!paymentSettings.leaderboard_visible && (
+                      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)', marginLeft: '22px' }}>
+                        Leaderboard is hidden. Visitors will see a &ldquo;Leaderboard is locked&rdquo; message.
+                      </p>
+                    )}
+                  </div>
+
                   <button type="submit" className="btn btn-primary" disabled={paymentSaving} style={{ alignSelf: 'flex-start' }}>
                     {paymentSaving ? 'Saving...' : '💾 Save payment settings'}
                   </button>

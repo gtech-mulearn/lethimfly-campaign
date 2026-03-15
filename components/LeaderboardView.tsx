@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { RankedCampus } from '@/types';
+import { RankedCampus, CampusType } from '@/types';
+
+const CAMPUS_TYPE_LABELS: Record<CampusType, string> = {
+  engineering: 'Engineering',
+  nursing: 'Nursing',
+  polytechnic: 'Polytechnic',
+  arts_science: 'Arts & Science',
+  other: 'Other',
+};
 
 export default function LeaderboardView() {
   const [data, setData] = useState<RankedCampus[]>([]);
@@ -136,7 +144,7 @@ export default function LeaderboardView() {
                       {campus.campus_name}
                     </Link>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                      {campus.district} • {campus.campus_type}
+                      {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
                     </div>
                   </td>
                   <td style={{ fontWeight: 700 }}>

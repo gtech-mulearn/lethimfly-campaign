@@ -88,17 +88,6 @@ export default async function CampusDetailPage({
     );
   }
 
-  const tierThresholds: Record<string, { next: string | null; need: number | null }> = {
-    E: { next: 'D', need: 50 },
-    D: { next: 'C', need: 200 },
-    C: { next: 'B', need: 500 },
-    B: { next: 'A', need: 1000 },
-    A: { next: 'S', need: 2000 },
-    S: { next: null, need: null },
-  };
-  const tierInfo = tierThresholds[campus.tier || 'E'] || { next: null, need: null };
-  const toNextTier = tierInfo.need ? tierInfo.need - (campus.verified_contributors || 0) : null;
-
   const groupedCommitments = commitments.reduce((acc, curr) => {
     const hash = curr.user_hash;
     if (!acc[hash]) {
@@ -144,12 +133,6 @@ export default async function CampusDetailPage({
               {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
             </p>
           </div>
-          <span
-            className={`tier-badge tier-${campus.tier}`}
-            style={{ fontSize: 'var(--text-lg)', padding: 'var(--space-2) var(--space-5)' }}
-          >
-            Tier {campus.tier}
-          </span>
         </div>
 
         {/* Stats Grid */}
@@ -178,26 +161,6 @@ export default async function CampusDetailPage({
           </div>
         </div>
 
-        {/* To next tier */}
-        {toNextTier !== null && toNextTier > 0 && (
-          <div
-            style={{
-              marginTop: 'var(--space-4)',
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'var(--bg-glass)',
-              borderRadius: 'var(--radius-md)',
-              textAlign: 'center',
-            }}
-          >
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-              🎯 <strong style={{ color: 'var(--accent-primary)' }}>{toNextTier}</strong> more verified
-              contributors to reach{' '}
-              <span className={`tier-badge tier-${tierInfo.next}`} style={{ verticalAlign: 'middle' }}>
-                Tier {tierInfo.next}
-              </span>
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Actions */}

@@ -55,6 +55,7 @@ export async function GET() {
       show_pending_publicly: settings.show_pending_publicly,
       screenshot_mandatory: settings.screenshot_mandatory ?? false,
       one_verified_per_phone: settings.one_verified_per_phone ?? false,
+      leaderboard_visible: settings.leaderboard_visible !== false,
     });
   } catch (error) {
     console.error('Campaign API error:', error);

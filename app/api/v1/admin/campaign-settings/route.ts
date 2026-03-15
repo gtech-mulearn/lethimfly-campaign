@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data: current } = await supabase
       .from('campaign_settings')
-      .select('account_info, screenshot_mandatory, one_verified_per_phone')
+      .select('account_info, screenshot_mandatory, one_verified_per_phone, leaderboard_visible')
       .eq('id', 1)
       .single();
 
@@ -34,6 +34,10 @@ export async function PATCH(request: NextRequest) {
 
     if (typeof body.one_verified_per_phone === 'boolean') {
       updates.one_verified_per_phone = body.one_verified_per_phone;
+    }
+
+    if (typeof body.leaderboard_visible === 'boolean') {
+      updates.leaderboard_visible = body.leaderboard_visible;
     }
 
     if (body.account_info && typeof body.account_info === 'object') {
