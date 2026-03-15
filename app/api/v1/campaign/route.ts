@@ -17,18 +17,20 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch campaign settings' }, { status: 500 });
     }
 
-    const { data: metrics, error: metricsError } = await supabase
-      .from('commitments')
-      .select('status, amount_committed');
+    const [metricsResult, campusesResult] = await Promise.all([
+      supabase.from('commitments').select('status, amount_committed, campus_id'),
+      supabase.from('campuses').select('campus_id', { count: 'exact', head: true }).eq('active', true),
+    ]);
 
     let verified_amount_total = 0;
     let verified_contributors_total = 0;
     let pending_verification_total = 0;
     let total_commitments_total = 0;
     let total_amount_committed = 0;
+    const campusesWithCommitments = new Set<string>();
 
-    if (!metricsError && metrics) {
-      metrics.forEach((c: { status: string; amount_committed: number }) => {
+    if (!metricsResult.error && metricsResult.data) {
+      metricsResult.data.forEach((c: { status: string; amount_committed: number; campus_id: string }) => {
         if (c.status === 'VERIFIED') {
           verified_amount_total += c.amount_committed;
           verified_contributors_total++;
@@ -38,6 +40,7 @@ export async function GET() {
         if (['COMMITTED', 'PENDING_VERIFICATION', 'VERIFIED'].includes(c.status)) {
           total_commitments_total++;
           total_amount_committed += c.amount_committed;
+          if (c.campus_id) campusesWithCommitments.add(c.campus_id);
         }
       });
     }
@@ -49,6 +52,7 @@ export async function GET() {
       pending_verification_total,
       total_commitments_total,
       total_amount_committed,
+      total_active_campuses: campusesWithCommitments.size,
       end_at: settings.end_at,
       leaderboard_mode: settings.leaderboard_mode,
       account_info: settings.account_info,

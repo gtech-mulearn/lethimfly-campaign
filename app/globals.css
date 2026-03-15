@@ -2605,7 +2605,7 @@ select:focus-visible,
 .admin-overview-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 16px;
   margin-bottom: var(--space-6);
 }
 
@@ -2624,11 +2624,12 @@ select:focus-visible,
 .admin-metric-card {
   background: #fff;
   border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 20px 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  min-height: 96px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   transition: box-shadow 0.15s;
 }
@@ -2638,13 +2639,13 @@ select:focus-visible,
 }
 
 .admin-metric-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 22px;
   flex-shrink: 0;
 }
 
@@ -2654,7 +2655,7 @@ select:focus-visible,
 
 .admin-metric-num {
   font-family: var(--font-heading);
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -2668,7 +2669,7 @@ select:focus-visible,
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-top: 3px;
+  margin-top: 5px;
   white-space: nowrap;
 }
 

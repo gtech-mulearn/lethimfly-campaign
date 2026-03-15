@@ -27,26 +27,26 @@ export default function MetricsStrip({ campaign }: { campaign?: CampaignInfo | n
 
   return (
     <div className="metrics-strip stagger">
-      {/* Total Raised - wider card */}
+      {/* Total Committed Amount */}
       <div className="metric-card">
-        <div className="metric-value gold">{formatAmount(campaign?.verified_amount_total || 0)}</div>
-        <div className="metric-label">Total Raised (Verified)</div>
+        <div className="metric-value gold">{formatAmount(campaign?.total_amount_committed || 0)}</div>
+        <div className="metric-label">Total Committed</div>
       </div>
 
-      {/* Verified Contributors */}
+      {/* Total Committed Persons */}
       <div className="metric-card">
         <div className="metric-value gold">
-          {(campaign?.verified_contributors_total || 0).toLocaleString()}
+          {(campaign?.total_commitments_total || 0).toLocaleString()}
         </div>
-        <div className="metric-label">Verified Contributors</div>
+        <div className="metric-label">Commitments</div>
       </div>
 
-      {/* Pending */}
+      {/* Campuses that have committed */}
       <div className="metric-card">
         <div className="metric-value gold">
-          {(campaign?.pending_verification_total || 0).toLocaleString()}
+          {(campaign?.total_active_campuses || 0).toLocaleString()}
         </div>
-        <div className="metric-label">Pending Verification</div>
+        <div className="metric-label">Campuses</div>
       </div>
 
       {/* Days Left - with SVG ring */}
@@ -66,7 +66,7 @@ export default function MetricsStrip({ campaign }: { campaign?: CampaignInfo | n
         <div className="metric-label">Days Left</div>
       </div>
 
-      {/* Round CTA cell - REF 6 */}
+      {/* Round CTA cell */}
       <Link href="?commit=true" scroll={false} className="metric-cta-cell">
         Commit ₹1 →
       </Link>

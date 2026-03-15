@@ -40,6 +40,10 @@ export async function PATCH(request: NextRequest) {
       updates.leaderboard_visible = body.leaderboard_visible;
     }
 
+    if ('end_at' in body) {
+      updates.end_at = body.end_at ? new Date(body.end_at).toISOString() : null;
+    }
+
     if (body.account_info && typeof body.account_info === 'object') {
       const prev = (current.account_info as Record<string, string>) || {};
       updates.account_info = {

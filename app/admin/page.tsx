@@ -80,6 +80,7 @@ export default function AdminDashboard() {
     screenshot_mandatory: boolean;
     one_verified_per_phone: boolean;
     leaderboard_visible: boolean;
+    end_at: string;
   } | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentSaving, setPaymentSaving] = useState(false);
@@ -211,6 +212,7 @@ export default function AdminDashboard() {
         screenshot_mandatory: data.screenshot_mandatory === true,
         one_verified_per_phone: data.one_verified_per_phone === true,
         leaderboard_visible: data.leaderboard_visible !== false,
+        end_at: data.end_at ? new Date(data.end_at).toISOString().slice(0, 10) : '',
       });
     } catch {
       setPaymentSettings(null);
@@ -532,6 +534,7 @@ export default function AdminDashboard() {
           screenshot_mandatory: paymentSettings.screenshot_mandatory,
           one_verified_per_phone: paymentSettings.one_verified_per_phone,
           leaderboard_visible: paymentSettings.leaderboard_visible,
+          end_at: paymentSettings.end_at || null,
         }),
       });
       clearAuthOn401(res);
@@ -1408,6 +1411,22 @@ export default function AdminDashboard() {
                     />
                     Limit to one commitment per phone number (uncheck to allow multiple commitments &amp; payments)
                   </label>
+
+                  <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '0' }} />
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label">📅 Campaign End Date</label>
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={paymentSettings.end_at}
+                      onChange={(e) => setPaymentSettings({ ...paymentSettings, end_at: e.target.value })}
+                      style={{ maxWidth: '220px' }}
+                    />
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-1)' }}>
+                      Controls the &ldquo;Days Left&rdquo; counter shown on the homepage.
+                    </p>
+                  </div>
 
                   <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '0' }} />
 

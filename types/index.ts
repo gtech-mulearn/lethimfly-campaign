@@ -88,7 +88,11 @@ export interface CampaignInfo extends CampaignSettings {
   verified_contributors_total: number;
   pending_verification_total: number;
   verified_amount_total: number;
+  total_commitments_total: number;
+  total_amount_committed: number;
+  total_active_campuses: number;
   days_left: number | null;
+  leaderboard_visible: boolean;
 }
 
 export interface PublicCommitment {
