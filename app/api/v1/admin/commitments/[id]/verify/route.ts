@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAdminKey } from '@/lib/auth/adminKey';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(
   request: NextRequest,
@@ -56,6 +57,13 @@ export async function POST(
       after_json: { status: 'VERIFIED' },
       reason: note || null,
     });
+
+    // Revalidate paths to reflect new stats
+    revalidatePath('/leaderboard');
+    revalidatePath('/campuses');
+    if (commitment.campus_id) {
+      revalidatePath(`/campuses/${commitment.campus_id}`);
+    }
 
     return NextResponse.json({ status: 'VERIFIED', message: 'Commitment verified' });
   } catch (error) {

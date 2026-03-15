@@ -35,6 +35,27 @@ async function getCampusCommitments(id: string): Promise<CampusCommitment[]> {
   }
 }
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const campus = await getCampusData(id);
+  if (!campus) return { title: 'Campus Not Found | #LetHimFly' };
+
+  return {
+    title: `${campus.campus_name} | #LetHimFly 🇮🇳`,
+    description: `Help ${campus.campus_name} raise funds for Syam Kumar to represent India at the Para Skydiving Championship. Current Karma: ${campus.campus_karma}`,
+    openGraph: {
+      title: `${campus.campus_name} - Join the #LetHimFly Campaign`,
+      description: `Help ${campus.campus_name} reach Tier ${campus.tier}!`,
+    },
+  };
+}
+
 export default async function CampusDetailPage({
   params,
 }: {

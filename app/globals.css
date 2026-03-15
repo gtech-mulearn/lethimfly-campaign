@@ -111,6 +111,14 @@
   --touch-min: 44px;
 }
 
+@media (max-width: 768px) {
+  :root {
+    --space-16: 3rem;
+    --space-20: 3.5rem;
+    --space-24: 4rem;
+  }
+}
+
 @media (min-width: 768px) {
   :root {
     --container-padding: 48px;
@@ -445,6 +453,18 @@ select:focus-visible,
   background: var(--bg-card-hover);
   border-color: var(--border-glow);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding-top: var(--safe-top);
 }
 
 .card-glass {
