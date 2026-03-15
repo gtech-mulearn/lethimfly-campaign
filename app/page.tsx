@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import MetricsStrip from '@/components/MetricsStrip';
 import FAQ from '@/components/FAQ';
-import CopyButton from '@/components/CopyButton';
-import QRLightbox from '@/components/QRLightbox';
 import { CampaignInfo, Commitment } from '@/types';
 
 async function getCampaignData(): Promise<CampaignInfo | null> {
@@ -347,102 +345,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          TRUST / DIRECT PAYMENT - REF 3 (BloomFi dark card)
-          ═══════════════════════════════════════════ */}
-      <section className="section" id="trust" style={{ background: 'var(--bg-primary)' }}>
-        <div className="container">
-          <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>
-            - TRUST
-          </span>
-
-          <div className="trust-block reveal">
-            <h3>💳 Direct Payment - No Middlemen</h3>
-            <p
-              style={{
-                color: 'rgba(255, 255, 255, 0.6)',
-                marginBottom: 'var(--space-8)',
-                maxWidth: '550px',
-                margin: '0 auto var(--space-8)',
-                fontSize: 'var(--text-sm)',
-                lineHeight: 1.7,
-              }}
-            >
-              All funds go directly to the campaign&apos;s dedicated account. This platform only
-              records your commitment and verifies your payment.
-            </p>
-
-            <div className="payment-layout">
-              {/* QR code */}
-              <div className="payment-qr-col">
-                  <div className="payment-qr-card">
-                    <QRLightbox src={campaign?.account_info?.qr_code_url || '/qr-upi.png'} />
-                  </div>
-                  <p className="payment-qr-label">Scan &amp; Pay via any UPI app</p>
-                </div>
-
-              {/* Bank details */}
-              <div className="account-details" style={{ flex: 1 }}>
-                {campaign?.account_info?.upi_id && (
-                  <div className="account-row">
-                    <span className="account-row-label">UPI ID</span>
-                    <span className="account-row-value">
-                      {campaign.account_info.upi_id}
-                      <CopyButton text={campaign.account_info.upi_id} />
-                    </span>
-                  </div>
-                )}
-                {campaign?.account_info?.account_name && (
-                  <div className="account-row">
-                    <span className="account-row-label">Name</span>
-                    <span className="account-row-value">
-                      {campaign.account_info.account_name}
-                      <CopyButton text={campaign.account_info.account_name} />
-                    </span>
-                  </div>
-                )}
-                {campaign?.account_info?.account_number && (
-                  <div className="account-row">
-                    <span className="account-row-label">A/C Number</span>
-                    <span className="account-row-value">
-                      {campaign.account_info.account_number}
-                      <CopyButton text={campaign.account_info.account_number} />
-                    </span>
-                  </div>
-                )}
-                {campaign?.account_info?.ifsc_code && (
-                  <div className="account-row">
-                    <span className="account-row-label">IFSC</span>
-                    <span className="account-row-value">
-                      {campaign.account_info.ifsc_code}
-                      <CopyButton text={campaign.account_info.ifsc_code} />
-                    </span>
-                  </div>
-                )}
-                {campaign?.account_info?.bank_name && (
-                  <div className="account-row">
-                    <span className="account-row-label">Bank</span>
-                    <span className="account-row-value">
-                      {campaign.account_info.bank_name}
-                      <CopyButton text={campaign.account_info.bank_name} />
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <p
-              style={{
-                marginTop: 'var(--space-6)',
-                color: 'rgba(255, 255, 255, 0.4)',
-                fontSize: 'var(--text-sm)',
-              }}
-            >
-              After making the payment, come back and submit your UTR for verification.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════════
           GLOBAL COMMITMENT FEED - REF 1 (Armonia rows)

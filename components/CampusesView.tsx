@@ -136,23 +136,20 @@ export default function CampusesView() {
                 transition: 'transform 0.2s, box-shadow 0.2s',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3
-                    style={{
-                      fontSize: 'var(--text-lg)',
-                      fontWeight: 700,
-                      marginBottom: 'var(--space-1)',
-                      color: 'var(--text-primary)',
-                    }}
-                  >
-                    {campus.campus_name}
-                  </h3>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-                    {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
-                  </p>
-                </div>
-                <span className={`tier-badge tier-${campus.tier}`}>{campus.tier}</span>
+              <div>
+                <h3
+                  style={{
+                    fontSize: 'var(--text-lg)',
+                    fontWeight: 700,
+                    marginBottom: 'var(--space-1)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  {campus.campus_name}
+                </h3>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                  {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
+                </p>
               </div>
 
               <div
