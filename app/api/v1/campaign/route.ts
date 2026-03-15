@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 
-export const revalidate = 10;
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

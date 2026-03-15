@@ -1,5 +1,5 @@
 // Campus and related types
-export type CampusType = 'engineering' | 'nursing' | 'poly' | 'arts' | 'other';
+export type CampusType = 'engineering' | 'nursing' | 'polytechnic' | 'arts_science' | 'other';
 export type CommitmentStatus =
   | 'COMMITTED'
   | 'PENDING_VERIFICATION'

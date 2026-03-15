@@ -72,8 +72,8 @@ export default function LeaderboardView() {
           <option value="">All Types</option>
           <option value="engineering">Engineering</option>
           <option value="nursing">Nursing</option>
-          <option value="poly">Polytechnic</option>
-          <option value="arts">Arts & Science</option>
+          <option value="polytechnic">Polytechnic</option>
+          <option value="arts_science">Arts & Science</option>
           <option value="other">Other</option>
         </select>
 

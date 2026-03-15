@@ -1,6 +1,14 @@
 import Link from 'next/link';
 import ShareButton from '@/components/ShareButton';
-import { CampusScore } from '@/types';
+import { CampusScore, CampusType } from '@/types';
+
+const CAMPUS_TYPE_LABELS: Record<CampusType, string> = {
+  engineering: 'Engineering',
+  nursing: 'Nursing',
+  polytechnic: 'Polytechnic',
+  arts_science: 'Arts & Science',
+  other: 'Other',
+};
 
 async function getCampusData(id: string): Promise<CampusScore | null> {
   try {
@@ -108,7 +116,7 @@ export default async function CampusDetailPage({
   return (
     <div
       className="container"
-      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '800px', minWidth: 0 }}
+      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '1000px', minWidth: 0 }}
     >
       {/* Campus Hero */}
       <div
@@ -133,7 +141,7 @@ export default async function CampusDetailPage({
               {campus.campus_name}
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
-              {campus.district} • {campus.campus_type}
+              {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
             </p>
           </div>
           <span
