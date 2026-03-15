@@ -72,7 +72,7 @@ export default async function Home() {
             {/* Card 1: Large image card */}
             <div className="hero-goal-card hero-goal-tall hero-goal-image">
               <img
-                src="https://images.unsplash.com/photo-1521685150894-3d0d82944b15?q=80&w=600&auto=format&fit=crop"
+                src="./pictureofsyam_.webp"
                 alt="Syam Kumar"
                 className="hero-goal-img"
               />
@@ -91,7 +91,7 @@ export default async function Home() {
             {/* Card 3: Image card — person */}
             <div className="hero-goal-card hero-goal-peach">
               <img
-                src="https://images.unsplash.com/photo-1544485351-46abcc7bfbf8?q=80&w=400&auto=format&fit=crop"
+                src="./wingsuit-flying.webp"
                 alt="Wingsuit Flying"
                 className="hero-goal-img"
               />
@@ -155,9 +155,8 @@ export default async function Home() {
             {/* Dark image card — top right */}
             <div className="journey-bento-image-card reveal reveal-delay-1">
               <span className="journey-bento-image-label">The Story</span>
-              <div className="journey-bento-star">✦</div>
               <img
-                src="https://images.unsplash.com/photo-1544485351-46abcc7bfbf8?q=80&w=800&auto=format&fit=crop"
+                src="./syam-and-basil-joseph.webp"
                 alt="Syam Kumar Profile"
                 className="journey-bento-img"
               />
