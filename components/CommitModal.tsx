@@ -143,17 +143,21 @@ export default function CommitModal() {
     <div
       className="modal-overlay"
       onClick={closeModal}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="commit-modal-title"
       style={{ zIndex: 1000, display: 'flex', alignItems: 'flex-start', paddingTop: '5vh' }}
     >
       <div
         className="modal-content card"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: '600px',
-          width: '90%',
-          maxHeight: '90vh',
+          maxWidth: 'min(600px, calc(100vw - 2 * var(--space-4)))',
+          width: '100%',
+          maxHeight: '85vh',
           overflowY: 'auto',
           position: 'relative',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         <button
@@ -172,7 +176,7 @@ export default function CommitModal() {
           &times;
         </button>
 
-        <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
+        <h2 id="commit-modal-title" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.5rem)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
           Make Your Commitment
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)' }}>

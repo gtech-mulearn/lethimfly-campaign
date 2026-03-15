@@ -55,7 +55,7 @@ function CampusesContent() {
   ];
 
   return (
-    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)' }}>
+    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', minWidth: 0 }}>
       <h1 className="section-title">Find Your Campus</h1>
       <p className="section-subtitle">Search for your college and commit to #LetHimFly</p>
 

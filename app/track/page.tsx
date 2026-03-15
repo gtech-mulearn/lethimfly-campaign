@@ -204,7 +204,7 @@ function TrackContent() {
   const verifiedCount = stats?.donation_count ?? commitments.filter((c) => c.status === 'VERIFIED').length;
 
   return (
-    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px' }}>
+    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px', minWidth: 0 }}>
       <h1 className="section-title">My Commitments</h1>
       <p className="section-subtitle">View and track the status of all your commitments.</p>
 

@@ -521,8 +521,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh' }}>
-      {/* Admin Header */}
+    <div style={{ minHeight: '100vh', overflowX: 'hidden' }}>
       <div
         style={{
           background: 'var(--bg-secondary)',
@@ -540,7 +539,7 @@ export default function AdminDashboard() {
             gap: 'var(--space-3)',
           }}
         >
-          <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 800 }}>
+          <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 800, wordBreak: 'break-word', minWidth: 0 }}>
             <span
               style={{
                 background: 'var(--gradient-hero)',
@@ -609,21 +608,11 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 'var(--space-1)',
-            background: 'var(--bg-glass)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-1)',
-            marginBottom: 'var(--space-4)',
-            width: 'fit-content',
-          }}
-        >
+        <div className="tabs-scroll">
+          <div className="tabs-scroll-inner">
           {[
-            { key: 'queue', label: '📋 Verification Queue' },
-            { key: 'all', label: '📊 All Commitments' },
+            { key: 'queue', label: '📋 Queue' },
+            { key: 'all', label: '📊 All' },
             { key: 'stats', label: '📈 Stats' },
             { key: 'campuses', label: '🏫 Campuses' },
             { key: 'payment', label: '💳 Payment' },
@@ -631,7 +620,7 @@ export default function AdminDashboard() {
             <button
               key={tab.key}
               className={`btn btn-sm ${activeTab === tab.key ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ border: 'none' }}
+              style={{ border: 'none', flexShrink: 0 }}
               onClick={() => {
                 setActiveTab(tab.key);
                 setStatusFilter(tab.key === 'queue' ? 'PENDING_VERIFICATION' : 'all');
@@ -641,6 +630,7 @@ export default function AdminDashboard() {
               {tab.label}
             </button>
           ))}
+          </div>
         </div>
 
         {/* Status filter: show for Queue (single status) and All Commitments (full filter) */}

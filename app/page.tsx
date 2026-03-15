@@ -439,7 +439,7 @@ export default async function Home() {
                   <img
                     src={campaign.account_info.qr_code_url}
                     alt="UPI QR Code"
-                    style={{ maxWidth: '200px', height: 'auto', borderRadius: 'var(--radius-md)' }}
+                    style={{ maxWidth: 'min(200px, 100%)', height: 'auto', borderRadius: 'var(--radius-md)' }}
                   />
                 </div>
               )}

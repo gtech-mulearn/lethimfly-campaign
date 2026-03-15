@@ -87,7 +87,7 @@ export default async function CampusDetailPage({
   return (
     <div
       className="container"
-      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '800px' }}
+      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '800px', minWidth: 0 }}
     >
       {/* Campus Hero */}
       <div

@@ -429,9 +429,16 @@ select:focus-visible,
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: var(--space-6);
+  padding: var(--space-4);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
+  max-width: 100%;
+}
+
+@media (min-width: 480px) {
+  .card {
+    padding: var(--space-6);
+  }
 }
 
 .card:hover {
@@ -1687,6 +1694,10 @@ select:focus-visible,
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  word-break: break-all;
+  text-align: right;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .copy-btn {
@@ -1727,6 +1738,19 @@ select:focus-visible,
   letter-spacing: 0.1em;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-table thead th {
+    padding: var(--space-2) var(--space-2);
+    font-size: 10px;
+  }
+  .leaderboard-table thead th:nth-child(3),
+  .leaderboard-table thead th:nth-child(4) {
+    white-space: normal;
+    word-break: break-word;
+  }
 }
 
 .leaderboard-table tbody tr {
@@ -2180,6 +2204,32 @@ select:focus-visible,
   position: relative;
   z-index: 1;
   min-height: 60vh;
+}
+
+/* Horizontal scroll tabs (admin and similar) */
+.tabs-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  max-width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+.tabs-scroll-inner {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--bg-glass);
+  border-radius: var(--radius-lg);
+  width: max-content;
+  min-width: min(100%, 320px);
+}
+
+@media (max-width: 640px) {
+  .tabs-scroll-inner {
+    flex-wrap: wrap;
+    width: 100%;
+  }
 }
 
 /* ============================================
@@ -2683,23 +2733,44 @@ select:focus-visible,
 }
 
 /* ============================================
+   Tablet breakpoint (640px)
+   ============================================ */
+@media (max-width: 640px) {
+  .section-subtitle {
+    font-size: var(--text-base);
+  }
+  .trust-block {
+    padding: var(--space-6) var(--space-4);
+    border-radius: 18px;
+  }
+}
+
+/* ============================================
    Comprehensive Mobile Responsive Overrides
    ============================================ */
 @media (max-width: 480px) {
-  /* Prevent all overflow */
   html, body {
     overflow-x: hidden;
     max-width: 100vw;
   }
 
-  /* Reduce section padding */
+  * {
+    box-sizing: border-box;
+  }
+
   .section {
-    padding: 56px 0;
+    padding: 48px 0;
   }
 
   .container {
     padding-left: 16px;
     padding-right: 16px;
+    min-width: 0;
+  }
+
+  .section-subtitle {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-6);
   }
 
   /* Hero bento — single column, smaller text */
@@ -2776,16 +2847,25 @@ select:focus-visible,
     font-size: var(--text-3xl);
   }
 
-  /* Trust block mobile padding */
   .trust-block {
-    padding: 28px 20px;
+    padding: 20px 16px;
     border-radius: 16px;
+  }
+
+  .trust-block h3 {
+    font-size: var(--text-xl);
   }
 
   .account-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 6px;
+    padding: var(--space-3) 0;
+  }
+
+  .account-row-value {
+    text-align: left;
+    justify-content: flex-start;
   }
 
   /* Feed section */
@@ -2809,4 +2889,33 @@ select:focus-visible,
     height: 40px;
     font-size: var(--text-lg);
   }
+
+  .btn-lg {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+    width: 100%;
+  }
+
+  .modal-content {
+    padding: var(--space-4);
+  }
+
+  .faq-question {
+    padding: var(--space-4) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .feed-row {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    min-height: 64px;
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Prevent horizontal overflow on all viewports */
+.page-content {
+  overflow-x: hidden;
+  max-width: 100%;
+  min-width: 0;
 }

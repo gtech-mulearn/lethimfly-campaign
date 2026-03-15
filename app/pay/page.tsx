@@ -154,7 +154,7 @@ function PayContent() {
   return (
     <div
       className="container"
-      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px' }}
+      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px', minWidth: 0 }}
     >
       <h1 className="section-title">Pay & Submit Proof</h1>
       <p className="section-subtitle">
@@ -238,7 +238,7 @@ function PayContent() {
               <img
                 src={campaignInfo.account_info.qr_code_url}
                 alt="UPI QR Code"
-                style={{ maxWidth: '200px', height: 'auto', borderRadius: 'var(--radius-md)' }}
+                style={{ maxWidth: 'min(200px, 100%)', height: 'auto', borderRadius: 'var(--radius-md)' }}
               />
             </div>
           )}
