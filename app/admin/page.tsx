@@ -1406,63 +1406,65 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            {/* Live preview */}
+            {/* Live preview - mirrors the trust-block dark card users see on Pay page */}
             {paymentSettings && (
-              <div className="card" style={{ alignSelf: 'flex-start' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}>
+              <div style={{ alignSelf: 'flex-start' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>
                   Live preview — as shown to users
                 </div>
-                <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 700, marginBottom: 'var(--space-1)' }}>💳 Campaign Account</h4>
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginBottom: 'var(--space-3)' }}>
-                  Pay directly via UPI or Bank Transfer
-                </p>
-                <div className="account-details" style={{ fontSize: 'var(--text-sm)' }}>
-                  {paymentSettings.upi_id && (
-                    <div className="account-row">
-                      <span className="account-row-label">UPI ID</span>
-                      <span className="account-row-value">{paymentSettings.upi_id}</span>
-                    </div>
-                  )}
-                  {paymentSettings.account_name && (
-                    <div className="account-row">
-                      <span className="account-row-label">Name</span>
-                      <span className="account-row-value">{paymentSettings.account_name}</span>
-                    </div>
-                  )}
-                  {paymentSettings.account_number && (
-                    <div className="account-row">
-                      <span className="account-row-label">A/C Number</span>
-                      <span className="account-row-value">{paymentSettings.account_number}</span>
-                    </div>
-                  )}
-                  {paymentSettings.ifsc_code && (
-                    <div className="account-row">
-                      <span className="account-row-label">IFSC</span>
-                      <span className="account-row-value">{paymentSettings.ifsc_code}</span>
-                    </div>
-                  )}
-                  {paymentSettings.bank_name && (
-                    <div className="account-row">
-                      <span className="account-row-label">Bank</span>
-                      <span className="account-row-value">{paymentSettings.bank_name}</span>
-                    </div>
-                  )}
-                  {paymentSettings.qr_code_url && (
-                    <div className="account-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                      <span className="account-row-label">UPI QR</span>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={paymentSettings.qr_code_url}
-                        alt="UPI QR Code"
-                        style={{ maxWidth: 160, height: 'auto', borderRadius: 'var(--radius-sm)', marginTop: 'var(--space-2)' }}
-                      />
-                    </div>
-                  )}
-                  {!paymentSettings.upi_id && !paymentSettings.account_number && (
-                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                      No details set yet. Fill in the form and save.
-                    </p>
-                  )}
+                <div className="trust-block" style={{ textAlign: 'left', padding: 'var(--space-6)', borderRadius: '16px', maxWidth: '340px' }}>
+                  <h4 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, marginBottom: 'var(--space-1)', color: '#fff' }}>💳 Campaign Account</h4>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,0.55)', marginBottom: 'var(--space-3)' }}>
+                    Pay directly via UPI or Bank Transfer
+                  </p>
+                  <div className="account-details" style={{ maxWidth: '100%' }}>
+                    {paymentSettings.upi_id && (
+                      <div className="account-row">
+                        <span className="account-row-label">UPI ID</span>
+                        <span className="account-row-value">{paymentSettings.upi_id}</span>
+                      </div>
+                    )}
+                    {paymentSettings.account_name && (
+                      <div className="account-row">
+                        <span className="account-row-label">Name</span>
+                        <span className="account-row-value">{paymentSettings.account_name}</span>
+                      </div>
+                    )}
+                    {paymentSettings.account_number && (
+                      <div className="account-row">
+                        <span className="account-row-label">A/C Number</span>
+                        <span className="account-row-value">{paymentSettings.account_number}</span>
+                      </div>
+                    )}
+                    {paymentSettings.ifsc_code && (
+                      <div className="account-row">
+                        <span className="account-row-label">IFSC</span>
+                        <span className="account-row-value">{paymentSettings.ifsc_code}</span>
+                      </div>
+                    )}
+                    {paymentSettings.bank_name && (
+                      <div className="account-row">
+                        <span className="account-row-label">Bank</span>
+                        <span className="account-row-value">{paymentSettings.bank_name}</span>
+                      </div>
+                    )}
+                    {paymentSettings.qr_code_url && (
+                      <div className="account-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <span className="account-row-label">UPI QR</span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={paymentSettings.qr_code_url}
+                          alt="UPI QR Code"
+                          style={{ maxWidth: 160, height: 'auto', borderRadius: 'var(--radius-sm)', marginTop: 'var(--space-2)', background: '#fff', padding: '4px' }}
+                        />
+                      </div>
+                    )}
+                    {!paymentSettings.upi_id && !paymentSettings.account_number && (
+                      <p style={{ fontSize: 'var(--text-xs)', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                        No details set yet. Fill in the form and save.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

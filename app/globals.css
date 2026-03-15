@@ -2720,6 +2720,7 @@ select:focus-visible,
   }
 }
 
+
 /* ---- Session expired banner (main site) ---- */
 .session-expired-banner {
   position: fixed;
