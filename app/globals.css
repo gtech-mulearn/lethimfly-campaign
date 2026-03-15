@@ -2639,6 +2639,53 @@ select:focus-visible,
   background: rgba(0,0,0,0.016);
 }
 
+/* ---- Commitment activity timeline ---- */
+.commitment-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.commitment-timeline-item {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 16px;
+}
+
+.commitment-timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.commitment-timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: rgba(0,0,0,0.08);
+}
+
+.commitment-timeline-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+  opacity: 0.9;
+}
+
+.commitment-timeline-body {
+  flex: 1;
+  padding-top: 4px;
+  min-width: 0;
+}
+
 /* ---- Campuses grid ---- */
 .admin-campuses-grid {
   display: grid;

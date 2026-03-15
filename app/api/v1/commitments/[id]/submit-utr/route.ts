@@ -147,6 +147,15 @@ export async function POST(
       );
     }
 
+    // Audit log - distinguish resubmit vs first submit
+    await supabase.from('audit_logs').insert({
+      action: commitment.status === 'REJECTED' ? 'RESUBMIT_UTR' : 'SUBMIT_UTR',
+      entity_type: 'commitment',
+      entity_id: id,
+      before_json: { status: commitment.status },
+      after_json: { status: 'PENDING_VERIFICATION', utr_number: utr_number.trim() },
+    });
+
     return NextResponse.json({
       status: 'PENDING_VERIFICATION',
       message: 'UTR submitted successfully. Your payment will be verified shortly.',

@@ -74,6 +74,12 @@ export default function AdminDashboard() {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentSaving, setPaymentSaving] = useState(false);
 
+  const [commitmentHistory, setCommitmentHistory] = useState<{
+    id: string; action: string; before_json: Record<string, unknown> | null;
+    after_json: Record<string, unknown> | null; reason: string | null; created_at: string;
+  }[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
   const [detailedStats, setDetailedStats] = useState<{
     summary: { total_commitments: number; total_amount_committed: number; verified_count: number; verified_amount: number; pending_count: number };
     by_district: { district: string; total_commitments: number; total_amount: number; verified_count: number; verified_amount: number }[];
@@ -82,6 +88,19 @@ export default function AdminDashboard() {
     by_status: { status: string; count: number }[];
   } | null>(null);
   const [detailedStatsLoading, setDetailedStatsLoading] = useState(false);
+
+  const fetchCommitmentHistory = async (id: string) => {
+    setHistoryLoading(true);
+    setCommitmentHistory([]);
+    try {
+      const res = await fetch(`/api/v1/admin/commitments/${id}/history`, {
+        headers: { Authorization: `Bearer ${getAuthKey()}` },
+      });
+      if (res.ok) setCommitmentHistory(await res.json());
+    } catch { /* silent */ } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const formatRupee = (n: number) =>
     `₹${Math.round(Number(n)).toLocaleString('en-IN', { maximumFractionDigits: 0, useGrouping: false })}`;
@@ -735,10 +754,10 @@ export default function AdminDashboard() {
                   key={c.id}
                   className="card"
                   style={{ padding: 'var(--space-4)', cursor: 'pointer' }}
-                  onClick={() => setDetailCommitment(c)}
+                  onClick={() => { setDetailCommitment(c); fetchCommitmentHistory(c.id); }}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && setDetailCommitment(c)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { setDetailCommitment(c); fetchCommitmentHistory(c.id); } }}
                   aria-label={`View details for ${c.full_name}`}
                 >
                   <div
@@ -1267,11 +1286,11 @@ export default function AdminDashboard() {
 
       {/* Commitment Detail Modal */}
       {detailCommitment && (
-        <div className="modal-overlay" onClick={() => { setDetailCommitment(null); setAdminUtr(''); }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" onClick={() => { setDetailCommitment(null); setAdminUtr(''); setCommitmentHistory([]); }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
               <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700 }}>Commitment details</h3>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setDetailCommitment(null); setAdminUtr(''); }} aria-label="Close">✕</button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setDetailCommitment(null); setAdminUtr(''); setCommitmentHistory([]); }} aria-label="Close">✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', fontSize: 'var(--text-sm)' }}>
               <div><span style={{ color: 'var(--text-muted)' }}>ID</span><br /><code style={{ fontSize: 'var(--text-xs)' }}>{detailCommitment.id}</code></div>
@@ -1295,6 +1314,55 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+            {/* Activity timeline */}
+            <div style={{ marginTop: 'var(--space-5)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: 'var(--space-3)' }}>
+                Activity log
+              </div>
+              {historyLoading ? (
+                <div className="skeleton" style={{ height: '60px', borderRadius: '8px' }} />
+              ) : commitmentHistory.length === 0 ? (
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>No activity recorded yet.</p>
+              ) : (
+                <div className="commitment-timeline">
+                  {commitmentHistory.map((entry, i) => {
+                    const isReject = entry.action === 'REJECT_COMMITMENT';
+                    const isVerify = entry.action === 'VERIFY_COMMITMENT';
+                    const isResubmit = entry.action === 'RESUBMIT_UTR';
+                    const isSubmit = entry.action === 'SUBMIT_UTR';
+                    const icon = isVerify ? '✅' : isReject ? '❌' : isResubmit ? '🔄' : isSubmit ? '📤' : '📝';
+                    const color = isVerify ? '#059669' : isReject ? '#dc2626' : isResubmit ? '#2563eb' : '#6b7280';
+                    const label = isVerify ? 'Verified' : isReject ? 'Rejected' : isResubmit ? 'UTR resubmitted' : isSubmit ? 'UTR submitted' : entry.action.replace(/_/g, ' ');
+                    return (
+                      <div key={entry.id ?? i} className="commitment-timeline-item">
+                        <div className="commitment-timeline-dot" style={{ background: color }}>
+                          <span style={{ fontSize: '10px' }}>{icon}</span>
+                        </div>
+                        <div className="commitment-timeline-body">
+                          <div style={{ fontWeight: 600, fontSize: '13px', color }}>
+                            {label}
+                          </div>
+                          {entry.reason && (
+                            <div style={{ fontSize: '12px', color: '#dc2626', marginTop: '2px' }}>
+                              Reason: {entry.reason}
+                            </div>
+                          )}
+                          {isResubmit && entry.after_json?.utr_number && (
+                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                              New UTR: <code style={{ fontSize: '11px' }}>{String(entry.after_json.utr_number)}</code>
+                            </div>
+                          )}
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>
+                            {new Date(entry.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {/* Admin set UTR when no UTR and status allows resubmit */}
             {(detailCommitment.status === 'COMMITTED' || detailCommitment.status === 'REJECTED') && !detailCommitment.utr_number && (
               <div style={{ marginTop: 'var(--space-4)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--border-color)' }}>
