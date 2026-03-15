@@ -1,14 +1,22 @@
 import Link from 'next/link';
 import ShareButton from '@/components/ShareButton';
-import { CampusScore } from '@/types';
+import { CampusScore, CampusType } from '@/types';
+
+const CAMPUS_TYPE_LABELS: Record<CampusType, string> = {
+  engineering: 'Engineering',
+  nursing: 'Nursing',
+  polytechnic: 'Polytechnic',
+  arts_science: 'Arts & Science',
+  other: 'Other',
+};
 
 async function getCampusData(id: string): Promise<CampusScore | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/v1/campuses`, { next: { revalidate: 30 } });
+    const res = await fetch(`${baseUrl}/api/v1/campuses/${id}`, { next: { revalidate: 30 } });
     if (!res.ok) return null;
-    const campuses: CampusScore[] = await res.json();
-    return (campuses || []).find((c) => c.campus_id === id) || null;
+    const campus: CampusScore = await res.json();
+    return campus || null;
   } catch {
     return null;
   }
@@ -19,6 +27,7 @@ interface CampusCommitment {
   full_name: string;
   amount_committed: number;
   created_at: string;
+  user_hash: string;
 }
 
 async function getCampusCommitments(id: string): Promise<CampusCommitment[]> {
@@ -32,6 +41,27 @@ async function getCampusCommitments(id: string): Promise<CampusCommitment[]> {
   } catch {
     return [];
   }
+}
+
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const campus = await getCampusData(id);
+  if (!campus) return { title: 'Campus Not Found | #LetHimFly' };
+
+  return {
+    title: `${campus.campus_name} | #LetHimFly 🇮🇳`,
+    description: `Help ${campus.campus_name} raise funds for Syam Kumar to represent India at the Para Skydiving Championship. Current Karma: ${campus.campus_karma}`,
+    openGraph: {
+      title: `${campus.campus_name} - Join the #LetHimFly Campaign`,
+      description: `Help ${campus.campus_name} reach Tier ${campus.tier}!`,
+    },
+  };
 }
 
 export default async function CampusDetailPage({
@@ -58,7 +88,6 @@ export default async function CampusDetailPage({
     );
   }
 
-  // Calculate "to next tier"
   const tierThresholds: Record<string, { next: string | null; need: number | null }> = {
     E: { next: 'D', need: 50 },
     D: { next: 'C', need: 200 },
@@ -70,14 +99,24 @@ export default async function CampusDetailPage({
   const tierInfo = tierThresholds[campus.tier || 'E'] || { next: null, need: null };
   const toNextTier = tierInfo.need ? tierInfo.need - (campus.verified_contributors || 0) : null;
 
-  // Compute top committers
-  const sortedByAmount = [...commitments].sort((a, b) => b.amount_committed - a.amount_committed);
+  const groupedCommitments = commitments.reduce((acc, curr) => {
+    const hash = curr.user_hash;
+    if (!acc[hash]) {
+      acc[hash] = { ...curr };
+    } else {
+      acc[hash].amount_committed += curr.amount_committed;
+    }
+    return acc;
+  }, {} as Record<string, CampusCommitment>);
+
+  const consolidatedList = Object.values(groupedCommitments);
+  const sortedByAmount = consolidatedList.sort((a, b) => b.amount_committed - a.amount_committed);
   const topCommitters = sortedByAmount.slice(0, 5);
 
   return (
     <div
       className="container"
-      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '800px' }}
+      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '1000px', minWidth: 0 }}
     >
       {/* Campus Hero */}
       <div
@@ -102,7 +141,7 @@ export default async function CampusDetailPage({
               {campus.campus_name}
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
-              {campus.district} • {campus.campus_type}
+              {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
             </p>
           </div>
           <span
@@ -115,6 +154,10 @@ export default async function CampusDetailPage({
 
         {/* Stats Grid */}
         <div className="metrics-strip" style={{ paddingTop: 'var(--space-6)', paddingBottom: 0 }}>
+          <div className="metric-card">
+            <div className="metric-value">{campus.total_commitments ?? 0}</div>
+            <div className="metric-label">Total Commitments</div>
+          </div>
           <div className="metric-card">
             <div className="metric-value green">{campus.verified_contributors || 0}</div>
             <div className="metric-label">Verified</div>
@@ -174,7 +217,7 @@ export default async function CampusDetailPage({
         >
           🪂 Commit to the cause
         </Link>
-        <ShareButton title={`Commit to the cause — ${campus.campus_name} — #LetHimFly`} campusId={id} />
+        <ShareButton title={`Commit to the cause - ${campus.campus_name} - #LetHimFly`} campusId={id} />
       </div>
 
       {/* Top Committers Section */}

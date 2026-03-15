@@ -5,6 +5,8 @@ interface RankedCampus {
   campus_id?: string;
   campus_name: string;
   district?: string;
+  total_commitments?: number;
+  total_amount_committed?: number;
   verified_contributors: number;
   verified_amount_total: number;
   tier: string;
@@ -28,7 +30,7 @@ export default function LeaderboardPreview({ data }: { data: RankedCampus[] }) {
           <tr>
             <th>Rank</th>
             <th>Campus</th>
-            <th>Verified</th>
+            <th>Commitments</th>
             <th>Amount</th>
             <th>Tier</th>
           </tr>
@@ -52,9 +54,11 @@ export default function LeaderboardPreview({ data }: { data: RankedCampus[] }) {
                   {campus.district}
                 </div>
               </td>
-              <td style={{ fontWeight: 700 }}>{campus.verified_contributors.toLocaleString()}</td>
+              <td style={{ fontWeight: 700 }}>
+                {(campus.total_commitments ?? campus.verified_contributors ?? 0).toLocaleString()}
+              </td>
               <td style={{ color: 'var(--accent-gold)' }}>
-                ₹{campus.verified_amount_total.toLocaleString()}
+                ₹{(campus.total_amount_committed ?? campus.verified_amount_total ?? 0).toLocaleString()}
               </td>
               <td>
                 <span className={`tier-badge tier-${campus.tier}`}>{campus.tier}</span>

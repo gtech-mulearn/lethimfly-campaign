@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import MetricsStrip from '@/components/MetricsStrip';
 import FAQ from '@/components/FAQ';
+import CopyButton from '@/components/CopyButton';
+import QRLightbox from '@/components/QRLightbox';
 import { CampaignInfo, Commitment } from '@/types';
 
 async function getCampaignData(): Promise<CampaignInfo | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/v1/campaign`, {
-      next: { revalidate: 30 },
+      next: { revalidate: 60, tags: ['campaign-settings'] },
     });
     if (!res.ok) return null;
     return res.json();
@@ -38,7 +40,7 @@ export default async function Home() {
   return (
     <>
       {/* ═══════════════════════════════════════════
-          HERO — Bento Grid with Campaign Goals
+          HERO - Bento Grid with Campaign Goals
           Headline left, goal cards right, viewport fit
           ═══════════════════════════════════════════ */}
       <section className="hero-bento">
@@ -50,7 +52,7 @@ export default async function Home() {
             </h1>
 
             <p className="hero-bento-desc animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              Support Syam Kumar — from 16 surgeries to the edge of a world record. Commit ₹100 to help him represent India.
+              Support Syam Kumar - from 16 surgeries to the edge of a world record. Commit ₹1 (1 Rupee Challenge) to help him represent India.
             </p>
 
             <div className="hero-bento-cta-row animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
@@ -82,13 +84,13 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Card 2: Goal text card — yellow */}
+            {/* Card 2: Goal text card - yellow */}
             <div className="hero-goal-card hero-goal-yellow">
               <h3>45,000 ft</h3>
-              <p>World record skydive attempt — higher than any para athlete has ever jumped.</p>
+              <p>World record skydive attempt - higher than any para athlete has ever jumped.</p>
             </div>
 
-            {/* Card 3: Image card — person */}
+            {/* Card 3: Image card - person */}
             <div className="hero-goal-card hero-goal-peach">
               <img
                 src="./wingsuit-flying.webp"
@@ -101,7 +103,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Card 4: Goal text card — light */}
+            {/* Card 4: Goal text card - light */}
             <div className="hero-goal-card hero-goal-light">
               <h3>Represent India</h3>
               <p>At the 2026 International Indoor Para Skydiving Championship. Be part of history.</p>
@@ -120,7 +122,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Card 6: Goal text — dark */}
+            {/* Card 6: Goal text - dark */}
 
           </div>
         </div>
@@ -131,12 +133,12 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          JOURNEY / STATS — Bento Grid Layout
+          JOURNEY / STATS - Bento Grid Layout
           Large headline wrapping around cards
           ═══════════════════════════════════════════ */}
       <section className="section" style={{ background: '#fff' }}>
         <div className="container">
-          <span className="section-label">— THE STORY</span>
+          <span className="section-label">- THE STORY</span>
 
           <div className="journey-bento">
             {/* Row 1: Headline area + Dark image card */}
@@ -152,7 +154,7 @@ export default async function Home() {
               </h2>
             </div>
 
-            {/* Dark image card — top right */}
+            {/* Dark image card - top right */}
             <div className="journey-bento-image-card reveal reveal-delay-1">
               <span className="journey-bento-image-label">The Story</span>
               <img
@@ -182,7 +184,7 @@ export default async function Home() {
               </svg>
             </div>
 
-            {/* Description card — yellow accent */}
+            {/* Description card - yellow accent */}
             <div className="journey-bento-desc-card reveal reveal-delay-2">
               <div className="journey-bento-tags">
                 <span>Skydiving</span>
@@ -202,7 +204,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Stat cards — bottom row */}
+            {/* Stat cards - bottom row */}
             <div className="journey-bento-stat reveal reveal-delay-1">
               <span className="journey-bento-stat-number">16</span>
               <span className="journey-bento-stat-label">Surgeries</span>
@@ -215,7 +217,7 @@ export default async function Home() {
 
             <div className="journey-bento-stat reveal reveal-delay-3">
               <span className="journey-bento-stat-number">42K</span>
-              <span className="journey-bento-stat-label">Feet — Wingsuit</span>
+              <span className="journey-bento-stat-label">Feet - Wingsuit</span>
             </div>
 
             <div className="journey-bento-stat journey-bento-stat-cta reveal reveal-delay-4">
@@ -232,7 +234,7 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          VIDEO TESTIMONIALS — REF 3 (BloomFi dark cards)
+          VIDEO TESTIMONIALS - REF 3 (BloomFi dark cards)
           ═══════════════════════════════════════════ */}
       <section
         className="section"
@@ -240,10 +242,10 @@ export default async function Home() {
       >
         <div className="container">
           <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>
-            — TESTIMONIALS
+            - TESTIMONIALS
           </span>
 
-          {/* Editorial pull quote — REF 3 */}
+          {/* Editorial pull quote - REF 3 */}
           <p
             className="reveal"
             style={{
@@ -288,7 +290,7 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          METRICS STRIP — REF 2 + REF 6
+          METRICS STRIP - REF 2 + REF 6
           Dark bento grid
           ═══════════════════════════════════════════ */}
       <section
@@ -301,13 +303,13 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          HOW IT WORKS — REF 3 (BloomFi bento) + REF 4 (Emblov grid)
+          HOW IT WORKS - REF 3 (BloomFi bento) + REF 4 (Emblov grid)
           Dotted path, outlined step numbers
           ═══════════════════════════════════════════ */}
       <section className="section" id="how-it-works" style={{ background: 'var(--bg-primary)' }}>
         <div className="container">
           <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>
-            — HOW IT WORKS
+            - HOW IT WORKS
           </span>
           <h2 className="section-title reveal" style={{ textAlign: 'center' }}>
             How It Works
@@ -321,7 +323,7 @@ export default async function Home() {
               <div className="step-number">1</div>
               <h3 className="step-title">Commit</h3>
               <p className="step-desc">
-                Choose your campus and commit ₹100 (or any amount). Your commitment is recorded
+                Choose your campus and commit ₹1 or any amount (1 Rupee Challenge). Your commitment is recorded
                 instantly.
               </p>
             </div>
@@ -346,16 +348,16 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          TRUST / DIRECT PAYMENT — REF 3 (BloomFi dark card)
+          TRUST / DIRECT PAYMENT - REF 3 (BloomFi dark card)
           ═══════════════════════════════════════════ */}
       <section className="section" id="trust" style={{ background: 'var(--bg-primary)' }}>
         <div className="container">
           <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>
-            — TRUST
+            - TRUST
           </span>
 
           <div className="trust-block reveal">
-            <h3>💳 Direct Payment — No Middlemen</h3>
+            <h3>💳 Direct Payment - No Middlemen</h3>
             <p
               style={{
                 color: 'rgba(255, 255, 255, 0.6)',
@@ -370,66 +372,62 @@ export default async function Home() {
               records your commitment and verifies your payment.
             </p>
 
-            <div className="account-details">
-              <div className="account-row">
-                <span className="account-row-label">UPI ID</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.upi_id || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Account Name</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.account_name || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Account Number</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.account_number || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">IFSC Code</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.ifsc_code || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Bank</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.bank_name || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
+            <div className="payment-layout">
+              {/* QR code */}
+              <div className="payment-qr-col">
+                  <div className="payment-qr-card">
+                    <QRLightbox src={campaign?.account_info?.qr_code_url || '/qr-upi.png'} />
+                  </div>
+                  <p className="payment-qr-label">Scan &amp; Pay via any UPI app</p>
+                </div>
+
+              {/* Bank details */}
+              <div className="account-details" style={{ flex: 1 }}>
+                {campaign?.account_info?.upi_id && (
+                  <div className="account-row">
+                    <span className="account-row-label">UPI ID</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.upi_id}
+                      <CopyButton text={campaign.account_info.upi_id} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.account_name && (
+                  <div className="account-row">
+                    <span className="account-row-label">Name</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.account_name}
+                      <CopyButton text={campaign.account_info.account_name} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.account_number && (
+                  <div className="account-row">
+                    <span className="account-row-label">A/C Number</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.account_number}
+                      <CopyButton text={campaign.account_info.account_number} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.ifsc_code && (
+                  <div className="account-row">
+                    <span className="account-row-label">IFSC</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.ifsc_code}
+                      <CopyButton text={campaign.account_info.ifsc_code} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.bank_name && (
+                  <div className="account-row">
+                    <span className="account-row-label">Bank</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.bank_name}
+                      <CopyButton text={campaign.account_info.bank_name} />
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -447,7 +445,7 @@ export default async function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          GLOBAL COMMITMENT FEED — REF 1 (Armonia rows)
+          GLOBAL COMMITMENT FEED - REF 1 (Armonia rows)
           ═══════════════════════════════════════════ */}
       <section
         className="section"
@@ -458,7 +456,7 @@ export default async function Home() {
         <div className="container" style={{ maxWidth: '800px' }}>
           <div className="live-label" style={{ justifyContent: 'center', width: '100%' }}>
             <span className="live-dot"></span>
-            — LIVE FEED
+            - LIVE FEED
           </div>
 
           <h2
@@ -474,7 +472,7 @@ export default async function Home() {
                 {recentCommitments.map((c, i) => (
                   <div key={c.id} className="feed-row">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                      {/* Avatar — yellow gradient circle with initial */}
+                      {/* Avatar - yellow gradient circle with initial */}
                       <div className="feed-avatar">
                         {c.full_name.charAt(0).toUpperCase()}
                       </div>
@@ -538,7 +536,7 @@ export default async function Home() {
       <section className="section" id="faq" style={{ background: '#fff' }}>
         <div className="container">
           <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>
-            — FAQ
+            - FAQ
           </span>
           <h2 className="section-title reveal" style={{ textAlign: 'center' }}>
             Frequently Asked Questions

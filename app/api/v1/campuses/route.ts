@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const district = searchParams.get('district') || '';
     const type = searchParams.get('type') || '';
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     let query: any = supabase
       .from('campus_stats_view')
       .select('*')

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const isUUID =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     let query: any;
     if (isUUID) {
       query = supabase

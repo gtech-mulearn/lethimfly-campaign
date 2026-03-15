@@ -1,26 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
- * Validates the admin Authorization header against the ADMIN_SECRET_KEY env variable.
- * Returns a 401 NextResponse if invalid, or null if valid.
+ * Validates the admin Authorization header: Bearer must be a Supabase JWT for a user
+ * whose email is in admin_users (is_active). Returns 401 if invalid, or null if valid.
  */
-export function validateAdminKey(request: NextRequest): NextResponse | null {
+export async function validateAdminKey(request: NextRequest): Promise<NextResponse | null> {
   const authHeader = request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const providedKey = authHeader.replace('Bearer ', '').trim();
-  const serverKey = process.env.ADMIN_SECRET_KEY;
+  const token = authHeader.replace('Bearer ', '').trim();
+  return validateAdminSession(request, token);
+}
 
-  if (!serverKey) {
-    console.error('ADMIN_SECRET_KEY env variable is not set!');
-    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+/**
+ * Validates that the Bearer token is a Supabase JWT and the user's email is in admin_users.
+ * Uses token from argument (e.g. from Authorization header).
+ */
+async function validateAdminSession(_request: NextRequest, token: string): Promise<NextResponse | null> {
+  try {
+    const supabase = createAdminClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
+    if (error || !user?.email) {
+      return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
+    }
+
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('email', user.email.toLowerCase().trim())
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!adminRow) {
+      return NextResponse.json({ error: 'Not an admin' }, { status: 401 });
+    }
+
+    return null;
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  if (providedKey !== serverKey) {
-    return NextResponse.json({ error: 'Invalid admin key' }, { status: 401 });
-  }
-
-  return null; // null means valid
 }

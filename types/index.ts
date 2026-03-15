@@ -1,5 +1,5 @@
 // Campus and related types
-export type CampusType = 'engineering' | 'nursing' | 'poly' | 'arts' | 'other';
+export type CampusType = 'engineering' | 'nursing' | 'polytechnic' | 'arts_science' | 'other';
 export type CommitmentStatus =
   | 'COMMITTED'
   | 'PENDING_VERIFICATION'
@@ -24,6 +24,8 @@ export interface CampusStats {
   campus_type: CampusType;
   district: string;
   campus_strength: number | null;
+  total_commitments?: number;
+  total_amount_committed?: number;
   verified_contributors: number;
   pending_verification: number;
   verified_amount_total: number;
@@ -49,7 +51,7 @@ export interface Commitment {
   rejection_reason: string | null;
   created_at: string;
   updated_at: string;
-  campuses?: { name: string } | null;
+  campuses?: { name: string; district?: string } | null;
 }
 
 export interface AccountInfo {

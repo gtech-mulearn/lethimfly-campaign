@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: 'How does the payment work?',
-    a: "You pay directly to the campaign's dedicated bank account using UPI or bank transfer. This platform does NOT process any payments — it only records your commitment and verifies your transaction reference (UTR).",
+    a: "You pay directly to the campaign's dedicated bank account using UPI or bank transfer. This platform does NOT process any payments; it only records your commitment and verifies your transaction reference (UTR).",
   },
   {
     q: 'What is a UTR number?',
@@ -21,11 +21,11 @@ const faqs = [
   },
   {
     q: 'What is Campus Karma?',
-    a: "Campus Karma is a points system that rewards campuses for verified contributions. Every verified contributor earns a fixed amount of Karma for their campus, plus tier bonuses based on total verified contributors. It's designed to be fair — the Karma is based on headcount, not donation amount.",
+    a: "Campus Karma is a points system that rewards campuses for verified contributions. Every verified contributor earns a fixed amount of Karma for their campus, plus tier bonuses based on total verified contributors. It's designed to be fair: the Karma is based on headcount, not donation amount.",
   },
   {
-    q: 'Can I commit more than ₹100?',
-    a: 'Yes! While ₹100 is the recommended amount, you can commit any amount. However, Campus Karma is based on the number of verified contributors, not the amount — so every contribution counts equally for leaderboard rankings.',
+    q: 'Can I commit more than ₹1?',
+    a: 'Yes! The ₹1 challenge starts at Re 1; you can commit any amount. Campus Karma is based on the number of verified contributors, not the amount, so every contribution counts equally for leaderboard rankings.',
   },
   {
     q: 'What if my submission gets rejected?',

@@ -27,7 +27,7 @@ export default function MetricsStrip({ campaign }: { campaign?: CampaignInfo | n
 
   return (
     <div className="metrics-strip stagger">
-      {/* Total Raised — wider card */}
+      {/* Total Raised - wider card */}
       <div className="metric-card">
         <div className="metric-value gold">{formatAmount(campaign?.verified_amount_total || 0)}</div>
         <div className="metric-label">Total Raised (Verified)</div>
@@ -49,7 +49,7 @@ export default function MetricsStrip({ campaign }: { campaign?: CampaignInfo | n
         <div className="metric-label">Pending Verification</div>
       </div>
 
-      {/* Days Left — with SVG ring */}
+      {/* Days Left - with SVG ring */}
       <div className="metric-card" style={{ position: 'relative' }}>
         <svg className="days-left-ring" viewBox="0 0 44 44">
           <circle className="track" cx="22" cy="22" r="18" />
@@ -62,13 +62,13 @@ export default function MetricsStrip({ campaign }: { campaign?: CampaignInfo | n
             strokeDashoffset={dashOffset}
           />
         </svg>
-        <div className="metric-value gold">{daysLeft || '—'}</div>
+        <div className="metric-value gold">{daysLeft || '-'}</div>
         <div className="metric-label">Days Left</div>
       </div>
 
-      {/* Round CTA cell — REF 6 */}
+      {/* Round CTA cell - REF 6 */}
       <Link href="?commit=true" scroll={false} className="metric-cta-cell">
-        Commit ₹100 →
+        Commit ₹1 →
       </Link>
     </div>
   );

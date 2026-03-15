@@ -11,10 +11,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = (page - 1) * limit;
 
-    const authError = validateAdminKey(request);
+    const authError = await validateAdminKey(request);
     if (authError) return authError;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query: any = supabase
       .from('commitments')
       .select(
@@ -36,7 +35,6 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('Admin commitments error:', error);
       return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
     }
 
@@ -47,8 +45,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil((count || 0) / limit),
     });
-  } catch (error) {
-    console.error('Admin commitments API error:', error);
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

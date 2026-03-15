@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     const { name, type, district } = body as { name: string; type: string; district: string };
 
-    const authError = validateAdminKey(request);
+    const authError = await validateAdminKey(request);
     if (authError) return authError;
 
     if (!name || name.trim().length === 0) {

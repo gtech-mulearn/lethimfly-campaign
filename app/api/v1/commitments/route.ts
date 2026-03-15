@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         full_name: full_name.trim(),
         phone: phoneClean,
         email: email?.trim() || null,
-        amount_committed: amount_committed || 100,
+        amount_committed: amount_committed ?? 1,
         status: 'COMMITTED',
       })
       .select()

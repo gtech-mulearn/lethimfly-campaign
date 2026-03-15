@@ -3,6 +3,8 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import UserDonationStats from '@/components/UserDonationStats';
 
 interface CampusOption {
   campus_id: string;
@@ -19,19 +21,19 @@ export default function CommitModal() {
 
   const [campuses, setCampuses] = useState<CampusOption[]>([]);
   const [loadingCampuses, setLoadingCampuses] = useState(false);
+  const [userSession, setUserSession] = useState<{ name: string; email: string } | null>(null);
 
   const [form, setForm] = useState({
     campus_id: '',
     full_name: '',
     phone: '',
     email: '',
-    amount_committed: 100,
+    amount_committed: 1,
   });
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Close modal by removing query params
   const closeModal = () => {
     const params = new URLSearchParams(searchParams?.toString() || '');
     params.delete('commit');
@@ -47,9 +49,11 @@ export default function CommitModal() {
         .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) {
-            setCampuses(data);
+            const sortedData = [...data].sort((a, b) =>
+              a.campus_name.localeCompare(b.campus_name)
+            );
+            setCampuses(sortedData);
           } else {
-            console.error('Expected array of campuses, got:', data);
             setCampuses([]);
           }
           if (preselectedCampusId) {
@@ -59,7 +63,28 @@ export default function CommitModal() {
         .catch(() => {})
         .finally(() => setLoadingCampuses(false));
     }
-  }, [isOpen, preselectedCampusId, campuses.length]);
+    if (isOpen) {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const name = session.user.user_metadata?.full_name || '';
+          const email = session.user.email || '';
+          setUserSession({ name, email });
+          setForm((f) => ({ ...f, full_name: f.full_name || name, email: f.email || email }));
+        }
+      });
+    }
+  }, [isOpen, preselectedCampusId]);
+
+  const handleGoogleLogin = async () => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href, // Stay on the same query parsed page
+      },
+    });
+  };
 
   useEffect(() => {
     if (preselectedCampusId) {
@@ -118,17 +143,21 @@ export default function CommitModal() {
     <div
       className="modal-overlay"
       onClick={closeModal}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="commit-modal-title"
       style={{ zIndex: 1000, display: 'flex', alignItems: 'flex-start', paddingTop: '5vh' }}
     >
       <div
         className="modal-content card"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: '600px',
-          width: '90%',
-          maxHeight: '90vh',
+          maxWidth: 'min(600px, calc(100vw - 2 * var(--space-4)))',
+          width: '100%',
+          maxHeight: '85vh',
           overflowY: 'auto',
           position: 'relative',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         <button
@@ -147,13 +176,36 @@ export default function CommitModal() {
           &times;
         </button>
 
-        <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
+        <h2 id="commit-modal-title" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.5rem)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>
           Make Your Commitment
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)' }}>
           Join the #LetHimFly campaign and help Syam reach the sky.
         </p>
 
+        {!userSession ? (
+          <div style={{ marginBottom: 'var(--space-6)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
+              Sign in with Google to make your commitment. Your email will be used to identify you.
+            </p>
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="btn btn-primary"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Sign in with Google to continue
+            </button>
+          </div>
+        ) : (
+        <>
+          <UserDonationStats show={!!userSession} style={{ marginBottom: 'var(--space-4)' }} />
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Select Your Campus *</label>
@@ -216,14 +268,16 @@ export default function CommitModal() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email (optional)</label>
+            <label className="form-label">Email</label>
             <input
               type="email"
               className="form-input"
-              placeholder="your@email.com"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              readOnly
+              style={{ backgroundColor: 'var(--bg-muted, #f3f4f6)', cursor: 'default' }}
+              aria-readonly="true"
             />
+            <span className="form-hint">From your Google account</span>
           </div>
 
           <div className="form-group">
@@ -236,7 +290,7 @@ export default function CommitModal() {
                 marginBottom: 'var(--space-2)',
               }}
             >
-              {[50, 100, 200, 500].map((amt) => (
+              {[1, 50, 100, 500, 1000].map((amt) => (
                 <button
                   key={amt}
                   type="button"
@@ -255,11 +309,11 @@ export default function CommitModal() {
               placeholder="Custom amount"
               value={form.amount_committed}
               onChange={(e) =>
-                setForm({ ...form, amount_committed: parseInt(e.target.value) || 100 })
+                setForm({ ...form, amount_committed: parseInt(e.target.value) || 1 })
               }
               min={1}
             />
-            <span className="form-hint">₹100 is recommended.</span>
+            <span className="form-hint">₹1 challenge - any amount counts.</span>
           </div>
 
           <div className="form-group">
@@ -298,6 +352,8 @@ export default function CommitModal() {
             {loading ? 'Submitting...' : '🪂 I Commit to #LetHimFly'}
           </button>
         </form>
+        </>
+        )}
       </div>
     </div>
   );
