@@ -108,7 +108,7 @@ function CommitFormInner() {
   return (
     <div
       className="container"
-      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '600px', minWidth: 0 }}
+      style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '720px', minWidth: 0 }}
     >
       <h1 className="section-title">Make Your Commitment</h1>
       <p className="section-subtitle">

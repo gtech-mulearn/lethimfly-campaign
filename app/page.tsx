@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import MetricsStrip from '@/components/MetricsStrip';
 import FAQ from '@/components/FAQ';
+import CopyButton from '@/components/CopyButton';
+import QRLightbox from '@/components/QRLightbox';
 import { CampaignInfo, Commitment } from '@/types';
 
 async function getCampaignData(): Promise<CampaignInfo | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/v1/campaign`, {
-      next: { revalidate: 30 },
+      next: { revalidate: 60, tags: ['campaign-settings'] },
     });
     if (!res.ok) return null;
     return res.json();
@@ -371,78 +373,63 @@ export default async function Home() {
               records your commitment and verifies your payment.
             </p>
 
-            <div className="account-details">
-              <div className="account-row">
-                <span className="account-row-label">UPI ID</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.upi_id || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Account Name</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.account_name || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Account Number</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.account_number || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">IFSC Code</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.ifsc_code || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              <div className="account-row">
-                <span className="account-row-label">Bank</span>
-                <span className="account-row-value">
-                  {campaign?.account_info?.bank_name || 'To be configured'}
-                  <button className="copy-btn" title="Copy">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </button>
-                </span>
-              </div>
-              {campaign?.account_info?.qr_code_url && (
-                <div className="account-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span className="account-row-label">UPI QR</span>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={campaign.account_info.qr_code_url}
-                    alt="UPI QR Code"
-                    style={{ maxWidth: 'min(200px, 100%)', height: 'auto', borderRadius: 'var(--radius-md)' }}
-                  />
+            <div className="payment-layout">
+              {/* QR code */}
+              <div className="payment-qr-col">
+                  <div className="payment-qr-card">
+                    <QRLightbox src={campaign?.account_info?.qr_code_url || '/qr-upi.png'} />
+                  </div>
+                  <p className="payment-qr-label">Scan &amp; Pay via any UPI app</p>
                 </div>
-              )}
+
+              {/* Bank details */}
+              <div className="account-details" style={{ flex: 1 }}>
+                {campaign?.account_info?.upi_id && (
+                  <div className="account-row">
+                    <span className="account-row-label">UPI ID</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.upi_id}
+                      <CopyButton text={campaign.account_info.upi_id} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.account_name && (
+                  <div className="account-row">
+                    <span className="account-row-label">Name</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.account_name}
+                      <CopyButton text={campaign.account_info.account_name} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.account_number && (
+                  <div className="account-row">
+                    <span className="account-row-label">A/C Number</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.account_number}
+                      <CopyButton text={campaign.account_info.account_number} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.ifsc_code && (
+                  <div className="account-row">
+                    <span className="account-row-label">IFSC</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.ifsc_code}
+                      <CopyButton text={campaign.account_info.ifsc_code} />
+                    </span>
+                  </div>
+                )}
+                {campaign?.account_info?.bank_name && (
+                  <div className="account-row">
+                    <span className="account-row-label">Bank</span>
+                    <span className="account-row-value">
+                      {campaign.account_info.bank_name}
+                      <CopyButton text={campaign.account_info.bank_name} />
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <p

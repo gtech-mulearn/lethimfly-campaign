@@ -163,7 +163,7 @@ export default function TrackView() {
 
   if (!userSession && !loading) {
     return (
-      <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '500px', textAlign: 'center' }}>
+      <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '720px', textAlign: 'center' }}>
         <h1 className="section-title">My Commitments</h1>
         <p className="section-subtitle">Sign in with Google to view your commitments and track their status.</p>
         <button
@@ -192,7 +192,7 @@ export default function TrackView() {
 
   if (loading) {
     return (
-      <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px' }}>
+      <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '860px' }}>
         <div className="skeleton skeleton-title" style={{ marginBottom: 'var(--space-4)' }} />
         <div className="skeleton" style={{ height: '120px', marginBottom: 'var(--space-4)' }} />
         <div className="skeleton" style={{ height: '200px' }} />
@@ -204,7 +204,7 @@ export default function TrackView() {
   const verifiedCount = stats?.donation_count ?? commitments.filter((c) => c.status === 'VERIFIED').length;
 
   return (
-    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '650px', minWidth: 0 }}>
+    <div className="container" style={{ paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-16)', maxWidth: '860px', minWidth: 0 }}>
       <h1 className="section-title">My Commitments</h1>
       <p className="section-subtitle">View and track the status of all your commitments.</p>
 

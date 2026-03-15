@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAdminKey } from '@/lib/auth/adminKey';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 /**
  * PATCH /api/v1/admin/campaign-settings
@@ -58,7 +58,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
     }
 
-    // Immediately bust the Next.js cache for public pages that render bank details
+    // Immediately bust the Next.js cache for public pages that render bank/campaign details
+    revalidateTag('campaign-settings');
     revalidatePath('/', 'layout');
 
     return NextResponse.json({ ok: true });

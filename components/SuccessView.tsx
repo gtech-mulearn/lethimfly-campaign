@@ -41,7 +41,7 @@ export default function SuccessView() {
       style={{
         paddingTop: 'var(--space-8)',
         paddingBottom: 'var(--space-16)',
-        maxWidth: '600px',
+        maxWidth: '680px',
         textAlign: 'center',
       }}
     >
