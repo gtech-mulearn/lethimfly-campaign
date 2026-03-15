@@ -448,7 +448,7 @@ export default function AdminDashboard() {
        
       complete: async (results: any) => {
         try {
-          const validTypes = ['engineering', 'nursing', 'poly', 'arts', 'other'];
+          const validTypes = ['engineering', 'nursing', 'polytechnic', 'arts_science', 'other'];
 
            
           const rows = results.data
@@ -1176,8 +1176,8 @@ export default function AdminDashboard() {
                   >
                     <option value="engineering">Engineering</option>
                     <option value="nursing">Nursing</option>
-                    <option value="poly">Poly</option>
-                    <option value="arts">Arts</option>
+                    <option value="polytechnic">Polytechnic</option>
+                    <option value="arts_science">Arts & Science</option>
                     <option value="other">Other</option>
                   </select>
                 </div>

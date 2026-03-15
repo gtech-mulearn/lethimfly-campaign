@@ -3,7 +3,15 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CampusScore } from '@/types';
+import { CampusScore, CampusType } from '@/types';
+
+const CAMPUS_TYPE_LABELS: Record<CampusType, string> = {
+  engineering: 'Engineering',
+  nursing: 'Nursing',
+  polytechnic: 'Polytechnic',
+  arts_science: 'Arts & Science',
+  other: 'Other',
+};
 
 export default function CampusesView() {
   const searchParams = useSearchParams();
@@ -141,7 +149,7 @@ export default function CampusesView() {
                     {campus.campus_name}
                   </h3>
                   <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-                    {campus.district} • {campus.campus_type}
+                    {campus.district} • {CAMPUS_TYPE_LABELS[campus.campus_type as CampusType] ?? campus.campus_type}
                   </p>
                 </div>
                 <span className={`tier-badge tier-${campus.tier}`}>{campus.tier}</span>
