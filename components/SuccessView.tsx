@@ -135,23 +135,25 @@ export default function SuccessView() {
         </div>
       </div>
 
-      {/* Share Card Canvas */}
-      {fullName && (
-        <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
-          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
-            🖼️ Your Personal Share Card
-          </h3>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}>
-            Download this and share on your Instagram story!
-          </p>
-          <ShareCardCanvas 
-            fullName={fullName} 
-            amount={amount} 
-            campusName={campusName || 'Direct Commitment'} 
-            commitmentId={commitmentId} 
+      {/* Share Card Canvas — always shown, renders once fullName loads */}
+      <div className="card" style={{ marginBottom: 'var(--space-6)' }}>
+        <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
+          🖼️ Your #LetHimFly Card
+        </h3>
+        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}>
+          Download and share on your story. Let the world know you&apos;re part of this!
+        </p>
+        {fullName ? (
+          <ShareCardCanvas
+            fullName={fullName}
+            amount={amount}
+            campusName={campusName || 'Kerala'}
+            commitmentId={commitmentId}
           />
-        </div>
-      )}
+        ) : (
+          <div className="skeleton" style={{ height: '340px', borderRadius: '16px' }} />
+        )}
+      </div>
 
       {/* Next Steps */}
       <div

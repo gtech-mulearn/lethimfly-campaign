@@ -1,6 +1,28 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
+// GET /api/v1/commitments/lookup?id=<uuid>  — used by SuccessView to fetch name
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('commitments')
+      .select('id, full_name, amount_committed, status, campuses ( name )')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    return NextResponse.json({ full_name: data.full_name, amount_committed: data.amount_committed, status: data.status });
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient();

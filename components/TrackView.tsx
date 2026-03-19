@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import ShareCardCanvas from '@/components/ShareCardCanvas';
 
 interface TrackResult {
   commitment_id: string;
@@ -23,6 +24,7 @@ export default function TrackView() {
   const [commitments, setCommitments] = useState<TrackResult[]>([]);
   const [stats, setStats] = useState<{ donation_count: number; total_amount: number } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -69,7 +71,9 @@ export default function TrackView() {
     return 0;
   };
 
-  const renderCommitmentCard = (r: TrackResult) => (
+  const renderCommitmentCard = (r: TrackResult) => {
+  const isShareOpen = expandedCard === r.commitment_id;
+  return (
     <div key={r.commitment_id} className="card" style={{ marginBottom: 'var(--space-4)' }}>
       <div
         style={{
@@ -158,8 +162,37 @@ export default function TrackView() {
           {r.status === 'REJECTED' ? 'Resubmit UTR' : 'Submit UTR'}
         </Link>
       )}
+
+      {/* Share card toggle */}
+      <button
+        type="button"
+        onClick={() => setExpandedCard(isShareOpen ? null : r.commitment_id)}
+        className="btn btn-secondary btn-sm"
+        style={{ width: '100%', marginTop: 'var(--space-3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+        {isShareOpen ? 'Hide share card' : '🖼️ Get shareable card'}
+      </button>
+
+      {/* Expandable share card panel */}
+      {isShareOpen && (
+        <div style={{ marginTop: 'var(--space-4)', borderTop: '1px solid var(--border-color)', paddingTop: 'var(--space-4)' }}>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-3)', textAlign: 'center' }}>
+            Download and share your #LetHimFly card on Instagram, WhatsApp or anywhere!
+          </p>
+          <ShareCardCanvas
+            fullName={r.full_name}
+            amount={String(r.amount_committed)}
+            campusName={r.campus_name || 'Kerala'}
+            commitmentId={r.commitment_id}
+          />
+        </div>
+      )}
     </div>
   );
+  };
 
   if (!userSession && !loading) {
     return (
